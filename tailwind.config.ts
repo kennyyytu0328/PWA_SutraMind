@@ -19,11 +19,24 @@ const config: Config = {
       },
       animation: {
         'breath': 'breath 5s ease-in-out infinite',
+        'breath-glow': 'breath-glow 5s ease-in-out infinite',
       },
       keyframes: {
         breath: {
           '0%, 100%': { opacity: '0.4', transform: 'scale(0.95)' },
           '50%': { opacity: '0.9', transform: 'scale(1.05)' },
+        },
+        'breath-glow': {
+          '0%, 100%': {
+            opacity: '0.55',
+            transform: 'scale(0.7)',
+            filter: 'blur(0.5px)',
+          },
+          '50%': {
+            opacity: '1',
+            transform: 'scale(1.1)',
+            filter: 'blur(0)',
+          },
         },
       },
     },
