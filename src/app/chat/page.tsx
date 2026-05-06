@@ -54,7 +54,7 @@ function ChatBody({
   category: CategoryId
 }) {
   const router = useRouter()
-  const { session, status, error, roundNumber, send, retry, finishSession } =
+  const { session, status, error, roundNumber, freshAssistantIndex, send, retry, finishSession } =
     useChatSession(sessionId, apiKey, category)
 
   if (!session) return <p className="text-zen-muted">準備中...</p>
@@ -73,7 +73,11 @@ function ChatBody({
 
       <div className="flex flex-col gap-4 min-h-[40vh]">
         {session.messages.map((m, i) => (
-          <ChatMessage key={i} message={m} />
+          <ChatMessage
+            key={i}
+            message={m}
+            revealMode={i === freshAssistantIndex ? 'live' : 'static'}
+          />
         ))}
         {status === 'sending' && (
           <div className="flex justify-start">
