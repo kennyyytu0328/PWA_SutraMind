@@ -80,3 +80,7 @@ export async function abandonStaleActiveSessions(): Promise<void> {
 export async function listSessions(): Promise<Session[]> {
   return db.sessions.orderBy('startedAt').reverse().toArray()
 }
+
+export async function deleteSession(id: number): Promise<void> {
+  await db.sessions.delete(id)
+}

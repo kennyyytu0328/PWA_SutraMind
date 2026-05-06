@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { db, saveApiKey, loadApiKey, clearApiKey,
          createSession, appendMessage, completeSession, listSessions,
-         getSession } from '@/lib/db'
+         getSession, deleteSession } from '@/lib/db'
 
 beforeEach(async () => {
   await db.delete()
@@ -65,5 +65,20 @@ describe('sessions CRUD', () => {
     const list = await listSessions()
     expect(list[0].id).toBe(b)
     expect(list[1].id).toBe(a)
+  })
+
+  it('deletes a session by id', async () => {
+    const a = await createSession('emotion_relation')
+    const b = await createSession('emotion_relation')
+    await deleteSession(a)
+    expect(await getSession(a)).toBeUndefined()
+    expect(await getSession(b)).toBeDefined()
+    const list = await listSessions()
+    expect(list).toHaveLength(1)
+    expect(list[0].id).toBe(b)
+  })
+
+  it('deleteSession is a no-op for missing ids', async () => {
+    await expect(deleteSession(99999)).resolves.toBeUndefined()
   })
 })
