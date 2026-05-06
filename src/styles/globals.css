@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  background-color: #121212;
+  color: #EAE0D5;
+  min-height: 100vh;
+}
+
+body {
+  font-family: 'Noto Sans TC', system-ui, sans-serif;
+}
