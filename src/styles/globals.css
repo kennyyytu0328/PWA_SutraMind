@@ -49,3 +49,31 @@ body {
     transform: none;
   }
 }
+
+@keyframes ink-bloom-in {
+  0% {
+    opacity: 0;
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.ink-bloom {
+  opacity: 0;
+}
+
+.ink-bloom.ink-bloom-show {
+  animation: ink-bloom-in 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ink-bloom {
+    opacity: 1;
+  }
+  .ink-bloom.ink-bloom-show {
+    animation: none;
+  }
+}

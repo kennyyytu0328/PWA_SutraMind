@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { render, act } from '@testing-library/react'
 import { InkDropText } from '@/components/InkDropText'
-import { setMatchMediaMatches } from './setup'
+import { setMatchMediaMatches, getLatestObserver, clearObservers } from './setup'
 
 describe('InkDropText — static mode', () => {
   beforeEach(() => {
@@ -104,5 +104,50 @@ describe('InkDropText — live mode', () => {
       vi.advanceTimersByTime(300) // 200 + 300 = 500 > 430, so onComplete should have fired
     })
     expect(onComplete).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('InkDropText — replay mode', () => {
+  beforeEach(() => {
+    setMatchMediaMatches(false)
+    clearObservers()
+  })
+
+  it('renders an element without the bloom-show class until intersected', () => {
+    const { container } = render(<InkDropText text="心無罣礙" mode="replay" />)
+    const bloom = container.querySelector('[data-testid="ink-bloom"]')
+    expect(bloom).not.toBeNull()
+    expect(bloom?.className).not.toMatch(/ink-bloom-show/)
+  })
+
+  it('adds the bloom-show class once on first intersection', () => {
+    const { container } = render(<InkDropText text="心無罣礙" mode="replay" />)
+    act(() => {
+      getLatestObserver().trigger(true)
+    })
+    const bloom = container.querySelector('[data-testid="ink-bloom"]')
+    expect(bloom?.className).toMatch(/ink-bloom-show/)
+  })
+
+  it('does not re-animate on subsequent intersections', () => {
+    const { container } = render(<InkDropText text="心無罣礙" mode="replay" />)
+    act(() => {
+      getLatestObserver().trigger(true)
+    })
+    const cls1 = container.querySelector('[data-testid="ink-bloom"]')?.className
+    act(() => {
+      getLatestObserver().trigger(false)
+      getLatestObserver().trigger(true)
+    })
+    const cls2 = container.querySelector('[data-testid="ink-bloom"]')?.className
+    expect(cls2).toBe(cls1)
+  })
+
+  it('renders text immediately under reduced motion (no observer attached)', () => {
+    setMatchMediaMatches(true)
+    const { container } = render(<InkDropText text="心無罣礙" mode="replay" />)
+    expect(container.textContent).toBe('心無罣礙')
+    // No observer should have been created.
+    expect(() => getLatestObserver()).toThrow()
   })
 })

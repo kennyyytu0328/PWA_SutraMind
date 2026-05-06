@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 
 export type InkDropMode = 'live' | 'replay' | 'static'
@@ -24,8 +24,6 @@ export function InkDropText({ text, mode, skip, onComplete }: InkDropTextProps) 
   const reduced = useReducedMotion()
   const completedRef = useRef(false)
 
-  // Keep onComplete in a ref so callers can pass inline arrow functions without
-  // resetting the timer on every parent render.
   const onCompleteRef = useRef(onComplete)
   useEffect(() => {
     onCompleteRef.current = onComplete
@@ -57,15 +55,40 @@ export function InkDropText({ text, mode, skip, onComplete }: InkDropTextProps) 
       }, totalMs)
       return () => clearTimeout(t)
     }
-    // replay handled in T8
+    // replay: onComplete fires once intersection has triggered the bloom (handled below)
   }, [mode, reduced, totalMs])
 
-  // skip flip: snap and fire onComplete now.
   useEffect(() => {
     if (mode !== 'live' || !skip || completedRef.current) return
     completedRef.current = true
     onCompleteRef.current?.()
   }, [skip, mode])
+
+  // ---- replay state ----
+  const bloomRef = useRef<HTMLParagraphElement | null>(null)
+  const [bloomed, setBloomed] = useState(false)
+
+  useEffect(() => {
+    if (mode !== 'replay' || reduced || bloomed) return
+    const el = bloomRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const e = entries[0]
+        if (e?.isIntersecting) {
+          setBloomed(true)
+          observer.disconnect()
+          if (!completedRef.current) {
+            completedRef.current = true
+            onCompleteRef.current?.()
+          }
+        }
+      },
+      { threshold: 0.3 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [mode, reduced, bloomed])
 
   if (mode === 'static' || reduced) {
     return <p className="whitespace-pre-wrap leading-relaxed">{text}</p>
@@ -88,6 +111,16 @@ export function InkDropText({ text, mode, skip, onComplete }: InkDropTextProps) 
     )
   }
 
-  // replay placeholder — implemented in T8
-  return <p className="whitespace-pre-wrap leading-relaxed">{text}</p>
+  // replay
+  return (
+    <p
+      ref={bloomRef}
+      data-testid="ink-bloom"
+      className={`whitespace-pre-wrap leading-relaxed ink-bloom${
+        bloomed ? ' ink-bloom-show' : ''
+      }`}
+    >
+      {text}
+    </p>
+  )
 }
