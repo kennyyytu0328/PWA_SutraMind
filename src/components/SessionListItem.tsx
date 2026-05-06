@@ -67,14 +67,14 @@ export function SessionListItem({ session }: Props) {
         type="button"
         onClick={handleDeleteClick}
         disabled={busy}
-        aria-label={confirming ? '確認刪除這次對話' : '刪除這次對話'}
+        aria-label={confirming ? '確認放下這次對話' : '放下這次對話'}
         className={`px-4 text-xs border-l transition-colors ${
           confirming
-            ? 'bg-red-900/40 text-red-200 border-red-500/40 hover:bg-red-900/60'
-            : 'text-zen-muted border-zen-muted/20 hover:text-red-300 hover:bg-red-900/10'
+            ? 'bg-zen-accent/15 text-zen-accent border-zen-accent/40 hover:bg-zen-accent/25 font-serif'
+            : 'text-zen-muted border-zen-muted/20 hover:text-zen-accent hover:bg-zen-accent/5'
         } disabled:opacity-50`}
       >
-        {busy ? '…' : confirming ? '確認刪除' : '刪除'}
+        {busy ? '…' : confirming ? '心無罣礙' : '放下'}
       </button>
     </div>
   )
