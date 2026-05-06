@@ -55,7 +55,7 @@ describe('InkDropText — live mode', () => {
       <InkDropText text="abc" mode="live" onComplete={onComplete} />
     )
     expect(onComplete).not.toHaveBeenCalled()
-    // 3 chars * 40ms stagger + 350ms duration = 470ms total
+    // 2 * 40ms stagger + 350ms duration = 430ms total; advance 500 to have margin
     act(() => {
       vi.advanceTimersByTime(500)
     })
@@ -85,6 +85,24 @@ describe('InkDropText — live mode', () => {
     )
     expect(container.querySelectorAll('[data-char]')).toHaveLength(0)
     expect(container.textContent).toBe('心無罣礙')
+    expect(onComplete).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not reset the reveal timer when an inline onComplete prop changes between renders', () => {
+    const onComplete = vi.fn()
+    const Wrapper = ({ counter }: { counter: number }) => (
+      // counter forces re-render; inline arrow rebuilds onComplete each render
+      <InkDropText text="abc" mode="live" onComplete={() => onComplete(counter)} />
+    )
+    const { rerender } = render(<Wrapper counter={0} />)
+    // Halfway through the 430ms reveal, parent re-renders.
+    act(() => {
+      vi.advanceTimersByTime(200)
+    })
+    rerender(<Wrapper counter={1} />)
+    act(() => {
+      vi.advanceTimersByTime(300) // 200 + 300 = 500 > 430, so onComplete should have fired
+    })
     expect(onComplete).toHaveBeenCalledTimes(1)
   })
 })

@@ -24,43 +24,48 @@ export function InkDropText({ text, mode, skip, onComplete }: InkDropTextProps) 
   const reduced = useReducedMotion()
   const completedRef = useRef(false)
 
+  // Keep onComplete in a ref so callers can pass inline arrow functions without
+  // resetting the timer on every parent render.
+  const onCompleteRef = useRef(onComplete)
+  useEffect(() => {
+    onCompleteRef.current = onComplete
+  }, [onComplete])
+
   const stagger = useMemo(() => computeStagger(text.length), [text.length])
   const totalMs = useMemo(
     () => Math.ceil(stagger * Math.max(0, text.length - 1) + PER_CHAR_DURATION_MS),
     [stagger, text.length]
   )
 
-  // onComplete behavior. Reduced-motion + static fire synchronously.
-  // Live mode under normal motion fires after totalMs.
   useEffect(() => {
     if (completedRef.current) return
     if (mode === 'static') {
       completedRef.current = true
-      onComplete?.()
+      onCompleteRef.current?.()
       return
     }
     if (reduced) {
       completedRef.current = true
-      onComplete?.()
+      onCompleteRef.current?.()
       return
     }
     if (mode === 'live') {
       const t = setTimeout(() => {
         if (completedRef.current) return
         completedRef.current = true
-        onComplete?.()
+        onCompleteRef.current?.()
       }, totalMs)
       return () => clearTimeout(t)
     }
     // replay handled in T8
-  }, [mode, reduced, totalMs, onComplete])
+  }, [mode, reduced, totalMs])
 
   // skip flip: snap and fire onComplete now.
   useEffect(() => {
     if (mode !== 'live' || !skip || completedRef.current) return
     completedRef.current = true
-    onComplete?.()
-  }, [skip, mode, onComplete])
+    onCompleteRef.current?.()
+  }, [skip, mode])
 
   if (mode === 'static' || reduced) {
     return <p className="whitespace-pre-wrap leading-relaxed">{text}</p>
