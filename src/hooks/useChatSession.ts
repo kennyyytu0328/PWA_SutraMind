@@ -27,6 +27,7 @@ export interface UseChatSessionResult {
   status: ChatStatus
   error: GeminiError | null
   roundNumber: RoundNumber
+  freshAssistantIndex: number | null
   send: (text: string) => Promise<void>
   retry: () => Promise<void>
   finishSession: () => Promise<void>
@@ -41,6 +42,7 @@ export function useChatSession(
   const [status, setStatus] = useState<ChatStatus>('idle')
   const [error, setError] = useState<GeminiError | null>(null)
   const [pendingUserMessage, setPendingUserMessage] = useState<string | null>(null)
+  const [freshAssistantIndex, setFreshAssistantIndex] = useState<number | null>(null)
 
   useEffect(() => {
     getSession(sessionId).then((s) => setSession(s ?? null))
@@ -59,6 +61,7 @@ export function useChatSession(
     async (text: string) => {
       setStatus('sending')
       setError(null)
+      setFreshAssistantIndex(null)
 
       const userMsg: ChatMessage = {
         role: 'user',
@@ -96,6 +99,12 @@ export function useChatSession(
         await appendMessage(sessionId, assistantMsg)
         const updated = await getSession(sessionId)
         setSession(updated ?? null)
+
+        const latestAssistantIdx = (updated?.messages ?? []).reduce(
+          (acc, m, i) => (m.role === 'assistant' ? i : acc),
+          -1
+        )
+        setFreshAssistantIndex(latestAssistantIdx >= 0 ? latestAssistantIdx : null)
 
         const assistantCount =
           updated?.messages.filter((m) => m.role === 'assistant').length ?? 0
@@ -156,6 +165,13 @@ export function useChatSession(
       })
       await refresh()
       const after = await getSession(sessionId)
+
+      const latestAssistantIdx = (after?.messages ?? []).reduce(
+        (acc, m, i) => (m.role === 'assistant' ? i : acc),
+        -1
+      )
+      setFreshAssistantIndex(latestAssistantIdx >= 0 ? latestAssistantIdx : null)
+
       const assistants = after?.messages.filter((m) => m.role === 'assistant').length ?? 0
       if (assistants >= 3) {
         await completeSession(sessionId)
@@ -177,5 +193,5 @@ export function useChatSession(
     setStatus('completed')
   }, [sessionId])
 
-  return { session, status, error, roundNumber, send, retry, finishSession }
+  return { session, status, error, roundNumber, freshAssistantIndex, send, retry, finishSession }
 }
