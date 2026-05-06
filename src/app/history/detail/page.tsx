@@ -27,7 +27,11 @@ function HistoryDetailInner() {
       </header>
       <div className="flex flex-col gap-4">
         {session.messages.map((m, i) => (
-          <ChatMessage key={i} message={m} />
+          <ChatMessage
+            key={i}
+            message={m}
+            revealMode={m.role === 'assistant' ? 'replay' : 'static'}
+          />
         ))}
       </div>
     </div>
