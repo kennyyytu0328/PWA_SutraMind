@@ -40,3 +40,32 @@ describe('prompt-builder: role + sutra knowledge blocks', () => {
     expect(parsed[0]).toHaveProperty('id', 'segment_1')
   })
 })
+
+describe('prompt-builder: category strategy block', () => {
+  it('injects emotion_relation strategy', () => {
+    const p = buildPrompt({ ...baseInput, category: 'emotion_relation' })
+    expect(p.systemInstruction).toMatch(/情感與關係|emotion_relation/)
+    expect(p.systemInstruction).toMatch(/心無罣礙/)
+    expect(p.systemInstruction).toMatch(/segment_4/)
+  })
+})
+
+describe('prompt-builder: round-aware closing rules', () => {
+  it('round 1 uses reflective-question closing', () => {
+    const p = buildPrompt({ ...baseInput, roundNumber: 1 })
+    expect(p.systemInstruction).toMatch(/reflective question|awareness practice/i)
+    expect(p.systemInstruction).not.toMatch(/final round|brief blessing/i)
+  })
+
+  it('round 2 also uses reflective-question closing', () => {
+    const p = buildPrompt({ ...baseInput, roundNumber: 2 })
+    expect(p.systemInstruction).toMatch(/reflective question|awareness practice/i)
+  })
+
+  it('round 3 uses concrete-practice + blessing closing', () => {
+    const p = buildPrompt({ ...baseInput, roundNumber: 3 })
+    expect(p.systemInstruction).toMatch(/final round/i)
+    expect(p.systemInstruction).toMatch(/concrete.*practice/i)
+    expect(p.systemInstruction).toMatch(/blessing/i)
+  })
+})

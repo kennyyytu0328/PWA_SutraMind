@@ -51,12 +51,30 @@ ${JSON.stringify(sutraDB, null, 2)}
 `.trim()
 }
 
-// Placeholders to be filled in later tasks:
-function buildCategoryStrategyBlock(_category: CategoryId): string {
-  return ''
+function buildCategoryStrategyBlock(categoryId: CategoryId): string {
+  const c = getCategory(categoryId)
+  return `
+[Category Strategy]
+The user has selected category: ${c.label} (${categoryId}).
+Inference focus: ${c.strategy}
+Likely relevant segments (use as starting hints, not constraints): ${c.likelySegments.join(', ')}
+`.trim()
 }
-function buildClosingRulesBlock(_round: RoundNumber): string {
-  return ''
+
+function buildClosingRulesBlock(round: RoundNumber): string {
+  if (round < 3) {
+    return `
+[Closing Rules — round ${round} of 3]
+End your reply with EITHER a single reflective question OR a tiny awareness practice (e.g., "now notice your breath for three cycles"). Keep it gentle. Do NOT moralize.
+`.trim()
+  }
+  return `
+[Closing Rules — final round (3 of 3)]
+This is the final round. End with:
+1. ONE concrete present-moment practice the user can do right now (under 30 seconds).
+2. A brief, sincere blessing (one short sentence).
+Do NOT moralize. Do NOT promise outcomes.
+`.trim()
 }
 function buildOutputContractBlock(): string {
   return ''
