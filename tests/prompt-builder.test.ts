@@ -69,3 +69,72 @@ describe('prompt-builder: round-aware closing rules', () => {
     expect(p.systemInstruction).toMatch(/blessing/i)
   })
 })
+
+describe('prompt-builder: output contract', () => {
+  it('responseSchema requires referenced_segment_ids and response_text', () => {
+    const p = buildPrompt(baseInput)
+    const s = p.responseSchema as any
+    expect(s.type).toBe('object')
+    expect(s.required).toContain('referenced_segment_ids')
+    expect(s.required).toContain('response_text')
+    expect(s.properties.referenced_segment_ids.type).toBe('array')
+    expect(s.properties.response_text.type).toBe('string')
+  })
+
+  it('system instruction forbids putting original sutra text inside response_text', () => {
+    const p = buildPrompt(baseInput)
+    expect(p.systemInstruction).toMatch(/JSON/)
+    expect(p.systemInstruction).toMatch(/do not include.*original.*response_text/i)
+  })
+})
+
+describe('prompt-builder: contents history formatting', () => {
+  it('returns single user content when history is empty', () => {
+    const p = buildPrompt(baseInput)
+    expect(p.contents).toHaveLength(1)
+    expect(p.contents[0]).toEqual({
+      role: 'user',
+      parts: [{ text: '我跟伴侶分手了' }],
+    })
+  })
+
+  it('translates history into gemini user/model role pairs', () => {
+    const p = buildPrompt({
+      ...baseInput,
+      history: [
+        { role: 'user', content: 'hi', timestamp: 1 },
+        {
+          role: 'assistant',
+          content: 'reply text',
+          referencedSegmentIds: ['segment_4'],
+          closingPractice: null,
+          timestamp: 2,
+        },
+      ],
+      userMessage: 'follow up',
+    })
+    expect(p.contents).toEqual([
+      { role: 'user', parts: [{ text: 'hi' }] },
+      { role: 'model', parts: [{ text: 'reply text' }] },
+      { role: 'user', parts: [{ text: 'follow up' }] },
+    ])
+  })
+
+  it('feeds only response_text back as model turn (not the JSON wrapper)', () => {
+    const p = buildPrompt({
+      ...baseInput,
+      history: [
+        {
+          role: 'assistant',
+          content: 'plain text',
+          referencedSegmentIds: ['segment_4'],
+          timestamp: 1,
+        },
+      ],
+      userMessage: 'q',
+    })
+    const modelTurn = p.contents.find((c) => c.role === 'model')!
+    expect(modelTurn.parts[0].text).toBe('plain text')
+    expect(modelTurn.parts[0].text).not.toMatch(/referenced_segment_ids/)
+  })
+})

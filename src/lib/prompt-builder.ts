@@ -77,10 +77,35 @@ Do NOT moralize. Do NOT promise outcomes.
 `.trim()
 }
 function buildOutputContractBlock(): string {
-  return ''
+  return `
+[Output Contract]
+You MUST respond with a single JSON object matching this schema:
+{
+  "referenced_segment_ids": string[]   // 1-2 ids from <SUTRA_DB> you actually drew from
+  "response_text": string              // your Zen reply, plain text only
+  "closing_practice": string | null    // tiny actionable practice OR null
 }
-function formatHistory(_history: ChatMessage[], _userMessage: string): GeminiContent[] {
-  return []
+
+Rules:
+- "response_text" is plain Chinese text. Do not include the original sutra characters in response_text — the UI will render the original from referenced_segment_ids.
+- Keep response_text under ~180 Chinese characters.
+- referenced_segment_ids MUST contain at least one valid id (segment_1 .. segment_9).
+`.trim()
+}
+
+function formatHistory(
+  history: ChatMessage[],
+  userMessage: string
+): GeminiContent[] {
+  const out: GeminiContent[] = []
+  for (const m of history) {
+    out.push({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.content }],
+    })
+  }
+  out.push({ role: 'user', parts: [{ text: userMessage }] })
+  return out
 }
 
 export function buildPrompt(input: BuildPromptInput): GeminiPayload {
@@ -98,7 +123,15 @@ export function buildPrompt(input: BuildPromptInput): GeminiPayload {
   return {
     systemInstruction,
     contents: formatHistory(history, userMessage),
-    responseSchema: {},
+    responseSchema: {
+      type: 'object',
+      properties: {
+        referenced_segment_ids: { type: 'array', items: { type: 'string' } },
+        response_text: { type: 'string' },
+        closing_practice: { type: 'string', nullable: true },
+      },
+      required: ['referenced_segment_ids', 'response_text'],
+    },
     generationConfig: {
       temperature: 0.7,
       responseMimeType: 'application/json',
