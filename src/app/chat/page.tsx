@@ -2,6 +2,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { BreathingLoader } from '@/components/BreathingLoader'
 import { ChatMessage } from '@/components/ChatMessage'
 import { ChatInput } from '@/components/ChatInput'
 import { RoundIndicator } from '@/components/RoundIndicator'
@@ -76,8 +77,8 @@ function ChatBody({
         ))}
         {status === 'sending' && (
           <div className="flex justify-start">
-            <div className="bg-zen-surface rounded-lg px-5 py-4">
-              <div className="w-3 h-3 rounded-full bg-zen-accent/50 animate-breath" />
+            <div className="bg-zen-surface rounded-lg px-8 py-6">
+              <BreathingLoader />
             </div>
           </div>
         )}
