@@ -20,14 +20,38 @@ export class GeminiError extends Error {
   }
 }
 
+function extractStatus(err: unknown): number | undefined {
+  const anyErr = err as { status?: unknown; code?: unknown; message?: unknown }
+  if (typeof anyErr?.status === 'number') return anyErr.status
+  if (typeof anyErr?.code === 'number') return anyErr.code
+  const msg = typeof anyErr?.message === 'string' ? anyErr.message : ''
+  const m = msg.match(/status:\s*(\d{3})/i) ?? msg.match(/"code"\s*:\s*(\d{3})/)
+  return m ? Number(m[1]) : undefined
+}
+
+function looksLikeBadApiKey(message: string): boolean {
+  return (
+    /api[_\s-]?key/i.test(message) &&
+    /(invalid|not valid|expired|denied)/i.test(message)
+  ) || /API_KEY_INVALID/i.test(message)
+}
+
 export function classifyGeminiError(err: unknown): GeminiError {
   if (err instanceof TypeError) {
     return new GeminiError('NETWORK', err.message, true)
   }
-  const anyErr = err as { status?: number; message?: string }
-  const status = anyErr?.status
-  const message = anyErr?.message ?? 'Unknown error'
+  const message =
+    typeof (err as { message?: unknown })?.message === 'string'
+      ? ((err as { message: string }).message)
+      : 'Unknown error'
+  const status = extractStatus(err)
+
   if (status === 401 || status === 403) {
+    return new GeminiError('AUTH_FAILED', message, false)
+  }
+  // Google returns 400 (not 401) for invalid API keys with a body like
+  // {"error":{"code":400,"message":"API key not valid...","status":"INVALID_ARGUMENT"}}
+  if (status === 400 && looksLikeBadApiKey(message)) {
     return new GeminiError('AUTH_FAILED', message, false)
   }
   if (status === 429) {
