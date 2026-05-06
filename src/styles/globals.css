@@ -13,3 +13,39 @@ html, body {
 body {
   font-family: 'Noto Sans TC', system-ui, sans-serif;
 }
+
+@keyframes ink-char-in {
+  0% {
+    opacity: 0;
+    filter: blur(3px);
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+.ink-char {
+  display: inline-block;
+  white-space: pre-wrap;
+  opacity: 0;
+  animation: ink-char-in 350ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.ink-char-skipped {
+  animation: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ink-char {
+    animation: none;
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
