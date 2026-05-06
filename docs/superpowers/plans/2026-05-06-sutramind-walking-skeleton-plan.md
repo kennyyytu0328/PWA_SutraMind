@@ -428,7 +428,7 @@ describe('sutra helpers', () => {
     const s = getSegmentById(db, 'segment_4')
     expect(s).toBeDefined()
     expect(s?.id).toBe('segment_4')
-    expect(s?.original).toMatch(/六根/)
+    expect(s?.original).toMatch(/眼耳鼻舌身意/)
   })
 
   it('getSegmentById returns undefined for unknown id', () => {
