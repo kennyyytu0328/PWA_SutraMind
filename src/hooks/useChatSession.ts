@@ -142,6 +142,7 @@ export function useChatSession(
     if (lastUser?.role !== 'user') return
     setStatus('sending')
     setError(null)
+    setFreshAssistantIndex(null)
     try {
       const historyExcludingLast = fresh.messages.slice(0, -1)
       const payload = buildPrompt({
