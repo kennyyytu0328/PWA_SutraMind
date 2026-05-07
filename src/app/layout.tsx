@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { LotusSymbol } from '@/components/Lotus'
+import { AppHeader } from '@/components/AppHeader'
 import '@/styles/globals.css'
 
 export const metadata: Metadata = {
@@ -13,8 +15,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-Hant">
-      <body className="bg-zen-bg text-zen-text antialiased">
-        <main className="min-h-screen mx-auto max-w-2xl px-6 py-12">
+      <body className="bg-zen-bg text-zen-text antialiased min-h-screen">
+        <LotusSymbol />
+        <AppHeader />
+        <main className="mx-auto max-w-2xl px-6 py-12">
           {children}
         </main>
       </body>
