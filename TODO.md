@@ -23,6 +23,15 @@ Spec: `docs/superpowers/specs/2026-05-06-zen-animations-design.md` · Plan: `doc
 - All three honor `useReducedMotion` (`src/hooks/useReducedMotion.ts`).
 - 65 tests passing, static export green. Note: Framer Motion installed but unused — final implementation is pure CSS transitions/keyframes for testability.
 
+### Visual decoration (gold-leaf aesthetic) ✅ shipped 2026-05-07
+Spec: `docs/superpowers/specs/2026-05-07-sutra-decoration-design.md` · Plan: `docs/superpowers/plans/2026-05-07-sutra-decoration-plan.md` · Inspired by traditional 木雕貼金 Heart Sutra panel artwork.
+- **Lotus glyph** — `src/components/Lotus.tsx` exports `LotusSymbol` (mounted once globally in `layout.tsx`) and `LotusGlyph` (consumer; `<svg><use href="#lotus-e"/></svg>` with optional `className`). Pure SVG, single shared `<symbol>`, no rasters.
+- **`.gold-frame` card class** — `src/styles/globals.css`, double-line gold picture-frame via `box-shadow: inset` (no extra DOM). Used on category tiles and the SegmentReference card.
+- **Global `AppHeader`** — `src/components/AppHeader.tsx`, lotus + 心經數位道場 + thin gold rule on every page (mounted in root `layout.tsx`).
+- **CategoryGrid** — gold-frame tiles with lotus glyph beside each label. The dead `!enabled / 即將開放` branch was removed (all 5 categories enabled per `tests/categories.test.ts`).
+- **SegmentReference** — expanded panel restructured as a centered gold-frame card: original sutra (`font-serif tracking-[0.5em]`) → 60px hairline → vernacular → lotus closing flourish → tiny `SEGMENT N` label.
+- 71 tests passing, static export green. Cosmetic polish open: concentric corner radius on `.gold-frame`, multi-page `<h1>` hierarchy audit, `SEGMENT N` Latin caption could become 第N節.
+
 ### 3. PWA proper
 - `public/manifest.webmanifest` with icons + name + theme color (#121212)
 - Service Worker via `next-pwa` or hand-rolled, caching app shell + Sutra-DB.json for offline reads (note: chat itself requires network for Gemini — make offline UX graceful, e.g., "離線中：你可以閱讀過去的對話" on /history)

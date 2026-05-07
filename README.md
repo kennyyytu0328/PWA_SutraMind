@@ -17,6 +17,7 @@ This is a **數位道場** (digital meditation space), not a productivity app. T
   - 🖋 **Ink-Drop reveal** — fresh assistant replies appear character-by-character (tap to skip); past messages on /history bloom in as you scroll.
   - 🏖 **Sand-Art dissolve** — when you tap 心無罣礙 to release a session, it dissolves over ~1s before deletion.
   - All three honor `prefers-reduced-motion`.
+- **Gold-leaf visual identity.** Inspired by traditional 木雕貼金 Heart Sutra panel artwork: a shared lotus SVG (`LotusSymbol` + `LotusGlyph`), a double-line `.gold-frame` card class, a global header band, and a centered SegmentReference card with sutra original / hairline rule / vernacular / lotus closing flourish.
 - **Zen vocabulary, not literal verbs.** Delete → 放下 / 心無罣礙. Save → 安住. Loading → 觀照中.
 - **Privacy hard rules.** API key in IndexedDB, never sent anywhere except `generativelanguage.googleapis.com`. No analytics. No telemetry. The only non-Gemini outbound link is the `<a>` to Google AI Studio for getting a key.
 
@@ -74,7 +75,8 @@ src/
     chat/               3-round chat
     history/            session list
     history/detail/     single-session detail (?id=N — static-export friendly)
-  components/           presentational UI (BreathingLoader, InkDropText, SandArtExit, …)
+  components/           presentational UI (AppHeader, Lotus, BreathingLoader,
+                        InkDropText, SandArtExit, CategoryGrid, SegmentReference, …)
   hooks/
     useApiKey.ts        API-key CRUD wrapper
     useSessions.ts      liveQuery list + by-id read-only
@@ -123,8 +125,9 @@ If you don't trust this README, read `src/lib/gemini.ts` and grep the codebase f
 
 See [`TODO.md`](./TODO.md) for the full backlog. Phase 2 highlights:
 
-- ✅ **Zen animations** (Breathing Loader / Ink-Drop / Sand-Art) — shipped 2026-05-07
-- 🔲 Wire up the other 4 dilemma categories (career, existence, health, sudden emotion)
+- ✅ **Zen animations** (Breathing Loader / Ink-Drop / Sand-Art) — shipped 2026-05-06
+- ✅ **All 5 dilemma categories** (career, existence, health, sudden emotion + emotion_relation) — shipped 2026-05-07
+- ✅ **Gold-leaf decoration** (lotus glyph + `.gold-frame` cards + global header) — shipped 2026-05-07
 - 🔲 Real PWA: manifest + Service Worker + offline reads
 - 🔲 Web Crypto API-key encryption
 - 🔲 GitHub Pages deploy workflow
@@ -137,8 +140,8 @@ See [`TODO.md`](./TODO.md) for the full backlog. Phase 2 highlights:
 |---|---|
 | [`AGENTS.md`](./AGENTS.md) | Original design vision in Chinese — vision, 5 dilemma categories, Zen UI/UX spec, Sutra-DB content, System Instruction template |
 | [`CLAUDE.md`](./CLAUDE.md) | Orientation for Claude Code working in this repo |
-| `docs/superpowers/specs/` | Approved design specs (Walking Skeleton, Zen Animations) |
-| `docs/superpowers/plans/` | Step-by-step implementation plans |
+| `docs/superpowers/specs/` | Approved design specs (Walking Skeleton, Zen Animations, Four Categories, Sutra Decoration) |
+| `docs/superpowers/plans/` | Step-by-step implementation plans (one per spec) |
 | [`TODO.md`](./TODO.md) | Deferred / next-phase backlog |
 
 ---
