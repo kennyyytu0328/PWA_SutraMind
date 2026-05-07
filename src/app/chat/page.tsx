@@ -9,6 +9,7 @@ import { RoundIndicator } from '@/components/RoundIndicator'
 import { useApiKey } from '@/hooks/useApiKey'
 import { useChatSession } from '@/hooks/useChatSession'
 import { getSession } from '@/lib/db'
+import { getCategory } from '@/lib/categories'
 import type { CategoryId } from '@/types/chat'
 
 function ChatPageInner() {
@@ -143,6 +144,7 @@ function ChatBody({
           <ChatInput
             disabled={status === 'sending'}
             onSubmit={(text) => send(text)}
+            placeholder={getCategory(category).placeholder}
           />
           {completedRounds > 0 && (
             <button
