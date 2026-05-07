@@ -14,13 +14,13 @@ Wire up `career_achievement`, `self_existence`, `health_pain`, `sudden_emotion`.
 - Per-category AI quality smoke test (3 representative inputs each, eyeball Zen vs moralizing)
 - Possibly per-category UI accent (different opening prompt placeholder?)
 
-### 2. Zen animations (the differentiator)
-Three explicit asks from `AGENTS.md` §4 that we deliberately skipped in skeleton:
-- **Breathing Loader** — currently a minimal CSS pulse. Upgrade to a full ~5s breath cycle that visually invites the user to synchronize breathing while the API call runs.
-- **Ink-Drop Rendering** — switch `callGemini` to streaming, and render `response_text` chunks with a Framer Motion `staggerChildren` + `filter: blur()` to simulate ink soaking into rice paper. Replace the current "wait then dump full reply" flow.
-- **Sand-Art Disposal** — when the user taps 放下/心無罣礙, animate the card dissolving (Framer Motion `exit` with `scale: 1.2`, `opacity: 0`, `blur(10px)`) before the actual Dexie delete. Currently the row just disappears.
-
-These need Framer Motion as a new dep (`pnpm add framer-motion`).
+### 2. Zen animations (the differentiator) ✅ shipped 2026-05-07
+Spec: `docs/superpowers/specs/2026-05-06-zen-animations-design.md` · Plan: `docs/superpowers/plans/2026-05-06-zen-animations-plan.md`
+- **Breathing Loader** — `src/components/BreathingLoader.tsx`, 5s soft-glow breath cycle on chat-page Gemini calls. `prefers-reduced-motion` shows static glow.
+- **Ink-Drop Rendering** — `src/components/InkDropText.tsx`, char-by-char reveal for fresh assistant turns (skip-on-tap snaps full), 400ms whole-message bloom on history detail replay. **Fake streaming** — `callGemini` contract unchanged; reveal is client-side animation only, so error classification + round-counter discipline are untouched.
+- **Sand-Art Disposal** — `src/components/SandArtExit.tsx`, ~1s scale/blur/fade dissolve on session delete, then Dexie `deleteSession` fires from `onExited` callback.
+- All three honor `useReducedMotion` (`src/hooks/useReducedMotion.ts`).
+- 65 tests passing, static export green. Note: Framer Motion installed but unused — final implementation is pure CSS transitions/keyframes for testability.
 
 ### 3. PWA proper
 - `public/manifest.webmanifest` with icons + name + theme color (#121212)
@@ -54,7 +54,7 @@ Either way, all aggregation runs locally; no remote anything.
 - **Component tests (RTL).** Skipped at skeleton stage. Worthwhile for `ChatInput`, `RoundIndicator`, `SegmentReference` once UI stabilizes.
 - **E2E smoke (Playwright).** A single happy-path test against the dev server (paste fake key → see error banner; or use a recorded fixture). Catches regressions in the Suspense / route-guard flow.
 - **`abandonStaleActiveSessions` sharpening.** Currently fires on every / mount, which would mark a mid-chat session as abandoned if user manually navigates back to /. Edge case but worth fixing — only abandon if `Date.now() - startedAt > some threshold`.
-- **Streaming Gemini response.** Required for Ink-Drop animation (see #2) but also a quality win on its own — first ink-drop appears within ~600ms vs ~3-5s for full reply.
+- **Streaming Gemini response.** Phase 2 #2 used fake streaming (client-side reveal of a full single-shot reply) to keep the `callGemini` contract intact. Real `generateContentStream` would let the first ink-drop appear within ~600ms vs ~3-5s for full reply — quality win, not blocking anything.
 - **Model switching UI.** AGENTS.md mentions Gemini 3.1 Flash Lite as an experimental option. A simple settings toggle on /setup. Probably waits until Phase 2.
 - **Multi-language UI.** Currently zh-Hant only. Lower priority since the audience is Chinese-speaking and Sutra-DB is in classical Chinese.
 - **Light theme.** Project is currently dark-only by design (matches 數位道場 aesthetic). Reconsider only if accessibility feedback warrants.
