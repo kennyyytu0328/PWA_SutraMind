@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import sutraDB from '@/data/sutra-db.json'
 import { getSegmentById } from '@/lib/sutra'
+import { LotusGlyph } from './Lotus'
 import type { SutraSegment } from '@/types/chat'
 
 const db = sutraDB as SutraSegment[]
@@ -27,9 +28,16 @@ export function SegmentReference({ ids }: Props) {
       {open && (
         <div className="mt-3 flex flex-col gap-4">
           {segments.map((s) => (
-            <div key={s.id} className="border-l-2 border-zen-accent/50 pl-4">
-              <p className="font-serif text-zen-text">{s.original}</p>
-              <p className="mt-2 text-zen-muted">{s.vernacular}</p>
+            <div key={s.id} className="gold-frame px-8 py-7 text-center">
+              <p className="font-serif text-zen-text text-xl tracking-[0.5em] leading-relaxed">
+                {s.original}
+              </p>
+              <div className="h-px bg-zen-accent/40 mx-auto my-3" style={{ width: '60px' }} />
+              <p className="text-zen-muted leading-relaxed">{s.vernacular}</p>
+              <LotusGlyph className="w-9 h-9 mx-auto mt-4" />
+              <p className="text-[10px] tracking-[2px] text-zen-muted/70 mt-1">
+                SEGMENT {s.id.split('_')[1]}
+              </p>
             </div>
           ))}
         </div>
