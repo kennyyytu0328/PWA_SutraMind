@@ -60,7 +60,7 @@ export function classifyGeminiError(err: unknown): GeminiError {
   return new GeminiError('UNKNOWN', message, true)
 }
 
-export const DEFAULT_MODEL = 'gemini-2.5-flash'
+export const DEFAULT_MODEL = 'gemma-4-31b-it'
 
 export async function callGemini(
   apiKey: string,
