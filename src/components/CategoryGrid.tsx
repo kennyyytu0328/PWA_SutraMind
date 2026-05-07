@@ -1,5 +1,6 @@
 'use client'
 import { CATEGORIES } from '@/lib/categories'
+import { LotusGlyph } from './Lotus'
 import type { CategoryId } from '@/types/chat'
 
 interface Props {
@@ -12,22 +13,16 @@ export function CategoryGrid({ onSelect }: Props) {
       {CATEGORIES.map((c) => (
         <button
           key={c.id}
-          disabled={!c.enabled}
           onClick={() => onSelect(c.id)}
-          className={`text-left p-6 rounded-lg border transition
-            ${c.enabled
-              ? 'bg-zen-surface border-zen-muted/30 hover:border-zen-accent cursor-pointer'
-              : 'bg-zen-surface/40 border-zen-muted/10 opacity-50 cursor-not-allowed'}`}
+          className="gold-frame text-left p-6 hover:border-zen-accent transition flex items-start gap-3"
         >
-          <div className="flex items-center justify-between">
-            <h3 className="font-serif text-xl">{c.label}</h3>
-            {!c.enabled && (
-              <span className="text-xs text-zen-muted">即將開放</span>
-            )}
+          <LotusGlyph className="w-5 h-5 mt-1 flex-shrink-0" />
+          <div className="flex-1">
+            <h3 className="font-serif text-xl tracking-wider">{c.label}</h3>
+            <p className="mt-2 text-sm text-zen-muted">
+              {c.presets.join('、')}
+            </p>
           </div>
-          <p className="mt-2 text-sm text-zen-muted">
-            {c.presets.join('、')}
-          </p>
         </button>
       ))}
     </div>
