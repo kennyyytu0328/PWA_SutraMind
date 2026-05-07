@@ -8,11 +8,12 @@ Walking Skeleton status: ✅ complete (2026-05-06). 39 tests passing, build gree
 
 ## Phase 2 candidates (each can become its own spec → plan → implementation cycle)
 
-### 1. Other 4 dilemma categories
-Wire up `career_achievement`, `self_existence`, `health_pain`, `sudden_emotion`. Each needs:
-- Strategy block tuning in `prompt-builder.ts` (the metadata exists in `lib/categories.ts`; just flip `enabled: true`)
-- Per-category AI quality smoke test (3 representative inputs each, eyeball Zen vs moralizing)
-- Possibly per-category UI accent (different opening prompt placeholder?)
+### 1. Other 4 dilemma categories ✅ shipped 2026-05-07
+Spec: `docs/superpowers/specs/2026-05-07-four-categories-design.md` · Plan: `docs/superpowers/plans/2026-05-07-four-categories-plan.md`
+- `career_achievement`, `self_existence`, `health_pain`, `sudden_emotion` are all `enabled: true` in `src/lib/categories.ts`.
+- Per-category placeholder copy lives on `CategoryMeta.placeholder` and is threaded into `ChatInput` via `chat/page.tsx`.
+- `tests/categories.test.ts` regression-locks each category injecting label + strategy + likelySegments into the system instruction.
+- Strategies remain verbatim from `AGENTS.md` §3 (any reactive tuning would be recorded as separate `fix(categories): tune …` commits).
 
 ### 2. Zen animations (the differentiator) ✅ shipped 2026-05-07
 Spec: `docs/superpowers/specs/2026-05-06-zen-animations-design.md` · Plan: `docs/superpowers/plans/2026-05-06-zen-animations-plan.md`
