@@ -1,17 +1,23 @@
 import { describe, it, expect } from 'vitest'
-import { CATEGORIES, getCategory, isCategoryEnabled } from '@/lib/categories'
+import { CATEGORIES, getCategory } from '@/lib/categories'
+import { buildPrompt } from '@/lib/prompt-builder'
+import sutraDB from '@/data/sutra-db.json'
+import type { SutraSegment } from '@/types/chat'
 
-describe('categories', () => {
+describe('CATEGORIES metadata', () => {
   it('exposes 5 categories', () => {
     expect(CATEGORIES).toHaveLength(5)
   })
 
-  it('only emotion_relation is enabled in skeleton', () => {
-    expect(isCategoryEnabled('emotion_relation')).toBe(true)
-    expect(isCategoryEnabled('career_achievement')).toBe(false)
-    expect(isCategoryEnabled('self_existence')).toBe(false)
-    expect(isCategoryEnabled('health_pain')).toBe(false)
-    expect(isCategoryEnabled('sudden_emotion')).toBe(false)
+  it('all 5 categories are enabled', () => {
+    expect(CATEGORIES.every((c) => c.enabled)).toBe(true)
+  })
+
+  it('every category has a non-empty placeholder', () => {
+    for (const c of CATEGORIES) {
+      expect(typeof c.placeholder).toBe('string')
+      expect(c.placeholder.length).toBeGreaterThan(0)
+    }
   })
 
   it('emotion_relation has chinese label and strategy hints', () => {
@@ -21,4 +27,22 @@ describe('categories', () => {
     expect(c.likelySegments).toContain('segment_4')
     expect(c.likelySegments).toContain('segment_6')
   })
+
+  it.each(CATEGORIES.map((c) => [c.id, c] as const))(
+    'system instruction for %s injects label, strategy, and every likelySegment',
+    (_id, c) => {
+      const payload = buildPrompt({
+        category: c.id,
+        history: [],
+        userMessage: '測試',
+        sutraDB: sutraDB as SutraSegment[],
+        roundNumber: 1,
+      })
+      expect(payload.systemInstruction).toContain(c.label)
+      expect(payload.systemInstruction).toContain(c.strategy)
+      for (const seg of c.likelySegments) {
+        expect(payload.systemInstruction).toContain(seg)
+      }
+    }
+  )
 })
