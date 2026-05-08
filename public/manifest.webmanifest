@@ -1,4 +1,5 @@
 {
+  "id": "/PWA_SutraMind/",
   "name": "SutraMind · 心經數位道場",
   "short_name": "SutraMind",
   "description": "一個 100% 客戶端的般若波羅蜜多心經對話空間。",
@@ -11,10 +12,34 @@
   "lang": "zh-Hant",
   "icons": [
     {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
       "src": "./icons/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }

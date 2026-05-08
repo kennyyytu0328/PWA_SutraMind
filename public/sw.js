@@ -7,14 +7,20 @@
  *   - generativelanguage.googleapis.com   : never intercepted (always live)
  */
 
-const VERSION = 'v1'
+const VERSION = 'v2'
 const SHELL_CACHE = `sutramind-shell-${VERSION}`
 const STATIC_CACHE = `sutramind-static-${VERSION}`
 const AUDIO_CACHE = `sutramind-audio-${VERSION}`
 const ALL_CACHES = [SHELL_CACHE, STATIC_CACHE, AUDIO_CACHE]
 
 const SCOPE = self.registration.scope // ends with '/'
-const SHELL_URLS = [SCOPE, `${SCOPE}manifest.webmanifest`, `${SCOPE}icons/icon.svg`]
+const SHELL_URLS = [
+  SCOPE,
+  `${SCOPE}manifest.webmanifest`,
+  `${SCOPE}icons/icon.svg`,
+  `${SCOPE}icons/icon-192.png`,
+  `${SCOPE}icons/icon-512.png`,
+]
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

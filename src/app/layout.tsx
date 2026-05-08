@@ -11,8 +11,12 @@ export const metadata: Metadata = {
   description: '一個極致私密的數位心靈空間。',
   manifest: `${BASE_PATH}/manifest.webmanifest`,
   icons: {
-    icon: [{ url: `${BASE_PATH}/icons/icon.svg`, type: 'image/svg+xml' }],
-    apple: [{ url: `${BASE_PATH}/icons/icon.svg` }],
+    icon: [
+      { url: `${BASE_PATH}/icons/icon.svg`, type: 'image/svg+xml' },
+      { url: `${BASE_PATH}/icons/icon-192.png`, sizes: '192x192', type: 'image/png' },
+      { url: `${BASE_PATH}/icons/icon-512.png`, sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [{ url: `${BASE_PATH}/icons/icon-192.png`, sizes: '192x192' }],
   },
   appleWebApp: {
     capable: true,
