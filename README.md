@@ -128,7 +128,7 @@ See [`TODO.md`](./TODO.md) for the full backlog. Phase 2 highlights:
 - ✅ **Zen animations** (Breathing Loader / Ink-Drop / Sand-Art) — shipped 2026-05-06
 - ✅ **All 5 dilemma categories** (career, existence, health, sudden emotion + emotion_relation) — shipped 2026-05-07
 - ✅ **Gold-leaf decoration** (lotus glyph + `.gold-frame` cards + global header) — shipped 2026-05-07
-- 🔲 Real PWA: manifest + Service Worker + offline reads
+- ✅ **Real PWA** (manifest + Service Worker + installable + offline app shell) — shipped 2026-05-08
 - 🔲 Web Crypto API-key encryption
 - 🔲 GitHub Pages deploy workflow
 
@@ -143,6 +143,12 @@ See [`TODO.md`](./TODO.md) for the full backlog. Phase 2 highlights:
 | `docs/superpowers/specs/` | Approved design specs (Walking Skeleton, Zen Animations, Four Categories, Sutra Decoration) |
 | `docs/superpowers/plans/` | Step-by-step implementation plans (one per spec) |
 | [`TODO.md`](./TODO.md) | Deferred / next-phase backlog |
+
+---
+
+## 🎵 Credits
+
+- **Ambient music:** *Nomadic Spirit* by [meditativetiger](https://meditativetiger.com/) — used as the optional background track (toggle in the header). Please confirm the track's license terms before redistribution.
 
 ---
 

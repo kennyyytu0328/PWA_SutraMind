@@ -32,11 +32,12 @@ Spec: `docs/superpowers/specs/2026-05-07-sutra-decoration-design.md` · Plan: `d
 - **SegmentReference** — expanded panel restructured as a centered gold-frame card: original sutra (`font-serif tracking-[0.5em]`) → 60px hairline → vernacular → lotus closing flourish → tiny `SEGMENT N` label.
 - 71 tests passing, static export green. Cosmetic polish open: concentric corner radius on `.gold-frame`, multi-page `<h1>` hierarchy audit, `SEGMENT N` Latin caption could become 第N節.
 
-### 3. PWA proper
-- `public/manifest.webmanifest` with icons + name + theme color (#121212)
-- Service Worker via `next-pwa` or hand-rolled, caching app shell + Sutra-DB.json for offline reads (note: chat itself requires network for Gemini — make offline UX graceful, e.g., "離線中：你可以閱讀過去的對話" on /history)
-- Install prompt UX
-- Verify `output: 'export'` still works alongside SW registration
+### 3. PWA proper ✅ shipped 2026-05-08
+- `public/manifest.webmanifest` with name, theme color (#121212), `display: standalone`, lotus SVG icon (`any maskable`).
+- Hand-rolled Service Worker at `public/sw.js`: shell network-first, `_next/static/*` cache-first, audio cache-first lazy-populate, Gemini API never intercepted, auto-update via `skipWaiting` + `clients.claim`.
+- Registered in production only via `src/components/RegisterServiceWorker.tsx` (dev keeps live reload).
+- basePath-aware (start_url, scope, swUrl, manifest URL all derived from `NEXT_PUBLIC_BASE_PATH`).
+- Open follow-ups: install prompt UX (none yet — relies on browser default), graceful offline copy on /chat (currently bubbles up the NETWORK error), per-platform PNG icons for older iOS.
 
 ### 4. API-key encryption
 Replace plain storage with Web Crypto:

@@ -119,7 +119,6 @@ pnpm build              # static export to ./out
 These are intentional and tracked in `TODO.md`:
 
 - API key stored in plain text (Web Crypto encryption deferred — Phase 2 #4)
-- No PWA manifest, no Service Worker, no offline mode (Phase 2 #3)
 - `/history/detail?id=N` instead of proper `/history/[id]/` (Next 14 static-export limitation)
 - Component tests skipped — manual browser verification per each spec's §9
 - No streaming responses — Zen animations use **fake streaming** (single-shot `generateContent` + client-side char-by-char reveal) so the `callGemini` contract stays simple
@@ -130,3 +129,4 @@ These are intentional and tracked in `TODO.md`:
 - ✅ All 5 dilemma categories enabled (Phase 2 #1, 2026-05-07)
 - ✅ Zen animations: BreathingLoader / InkDropText / SandArtExit + `useReducedMotion` (Phase 2 #2, 2026-05-06)
 - ✅ Gold-leaf decoration: lotus SVG, `.gold-frame` cards, global `AppHeader` (2026-05-07)
+- ✅ PWA: `public/manifest.webmanifest` + `public/sw.js` (hand-rolled) + `RegisterServiceWorker` mounted in `layout.tsx`. Installable, app shell offline. Gemini API never cached. Audio (`.mp3`) cache-first lazy-populate. SW only registers in production (2026-05-08)

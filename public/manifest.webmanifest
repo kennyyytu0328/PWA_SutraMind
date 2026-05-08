@@ -1,0 +1,20 @@
+{
+  "name": "SutraMind · 心經數位道場",
+  "short_name": "SutraMind",
+  "description": "一個 100% 客戶端的般若波羅蜜多心經對話空間。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "lang": "zh-Hant",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
