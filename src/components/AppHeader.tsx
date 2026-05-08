@@ -1,4 +1,5 @@
 import { LotusGlyph } from './Lotus'
+import { AmbientAudio } from './AmbientAudio'
 
 export function AppHeader() {
   return (
@@ -7,6 +8,7 @@ export function AppHeader() {
       <h1 className="font-serif text-xl tracking-[0.25em] text-zen-text">
         心經數位道場
       </h1>
+      <AmbientAudio />
     </header>
   )
 }

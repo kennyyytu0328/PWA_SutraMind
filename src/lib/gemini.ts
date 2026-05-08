@@ -62,26 +62,45 @@ export function classifyGeminiError(err: unknown): GeminiError {
 
 export const DEFAULT_MODEL = 'gemma-4-31b-it'
 
+const RETRY_DELAYS_MS = [3000, 5000]
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
+
+function shouldAutoRetry(err: GeminiError): boolean {
+  return err.retryable && (err.kind === 'UNKNOWN' || err.kind === 'NETWORK')
+}
+
 export async function callGemini(
   apiKey: string,
   payload: GeminiPayload
 ): Promise<GeminiStructuredResponse> {
+  const ai = new GoogleGenAI({ apiKey })
+
   let raw: string
-  try {
-    const ai = new GoogleGenAI({ apiKey })
-    const response = await ai.models.generateContent({
-      model: DEFAULT_MODEL,
-      contents: payload.contents,
-      config: {
-        systemInstruction: payload.systemInstruction,
-        responseMimeType: payload.generationConfig.responseMimeType,
-        responseSchema: payload.responseSchema,
-        temperature: payload.generationConfig.temperature,
-      },
-    })
-    raw = response.text ?? ''
-  } catch (err) {
-    throw classifyGeminiError(err)
+  let attempt = 0
+  while (true) {
+    try {
+      const response = await ai.models.generateContent({
+        model: DEFAULT_MODEL,
+        contents: payload.contents,
+        config: {
+          systemInstruction: payload.systemInstruction,
+          responseMimeType: payload.generationConfig.responseMimeType,
+          responseSchema: payload.responseSchema,
+          temperature: payload.generationConfig.temperature,
+        },
+      })
+      raw = response.text ?? ''
+      break
+    } catch (err) {
+      const classified = classifyGeminiError(err)
+      if (attempt < RETRY_DELAYS_MS.length && shouldAutoRetry(classified)) {
+        await sleep(RETRY_DELAYS_MS[attempt])
+        attempt++
+        continue
+      }
+      throw classified
+    }
   }
 
   let parsed: GeminiStructuredResponse
