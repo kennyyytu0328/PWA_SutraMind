@@ -17,11 +17,16 @@ export default function CategoriesPage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <header className="flex items-center justify-between">
+      <header className="flex items-center justify-between gap-4">
         <h1 className="font-serif text-2xl">此刻，是什麼讓你停留？</h1>
-        <Link href="/history" className="text-sm text-zen-muted hover:text-zen-accent">
-          歷史 →
-        </Link>
+        <nav className="flex items-center gap-4 text-sm text-zen-muted">
+          <Link href="/mirror" className="hover:text-zen-accent">
+            心鏡 →
+          </Link>
+          <Link href="/history" className="hover:text-zen-accent">
+            歷史 →
+          </Link>
+        </nav>
       </header>
       <CategoryGrid onSelect={handleSelect} />
     </div>

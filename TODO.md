@@ -51,11 +51,27 @@ Replace plain storage with Web Crypto:
 - Configure `next.config.mjs` `basePath` and `assetPrefix` for the `<repo>.github.io/<project>/` path (or set up a custom domain)
 - Manual smoke against the deployed URL before announcing
 
-### 6. History analytics (read-only stats)
-Brainstormed in design phase as option C; deferred. If pursued, decide between:
-- A simple stats card on /history showing category distribution + session count
-- A dedicated /insights page
-Either way, all aggregation runs locally; no remote anything.
+### 6. History analytics (read-only stats) — superseded by Phase 3-A/B (Mind Mirror)
+Original brainstorm shipped in a richer form as the `/mirror` page (Phase 3-A/B below).
+
+### 7. Phase 3-A: analytics pipeline ✅ shipped 2026-05-16
+Spec: `docs/superpowers/specs/2026-05-16-analytics-mind-mirror-design.md` · Plan: `docs/superpowers/plans/2026-05-16-analytics-mind-mirror-plan.md`
+- After each 3-round session, `pipelineChatToAnalytics` (fire-and-forget) calls Gemma to extract 5-dim metrics (attachment / aversion / fear / clinging-to-self / wisdom-seed) per session.
+- Tolerant JSON parser (markdown fence strip, brace balancing, value clamping) in `src/lib/analytics-parser.ts`; pure prompt builder in `analytics-prompt-builder.ts`.
+- Dexie v2 schema adds `analytics` + `profile` tables. Same-day second session merges with per-dim max + latest mind_summary.
+- Offline / Gemma error → analytics drops silently; chat UX unaffected; round counter discipline preserved.
+
+### 8. Phase 3-B: /mirror page ✅ shipped 2026-05-16
+Same spec/plan as 3-A.
+- `/mirror` route with `AttachmentIndex` + `RadarPanel` (今日 / 7日 toggle) + `TrendPanel` (≥ 3 distinct dates) + `EmptyMirror` empty state.
+- Recharts radar + line chart, animations honor `prefers-reduced-motion`.
+- `AppHeader` gains 心鏡 / 歷史 nav entries.
+
+### 9. Phase 3-C: Daily Insight ritual (next up)
+Brainstormed alongside 3-A/B but deferred. Idea:
+- Once per local day, surface a single short reflection drawn from the user's recent metrics + a matching sutra segment.
+- Likely a card on `/mirror` (or `/` post-setup) with a 「今日靜觀」moment; opt-in, no notifications.
+- Open: where the prompt lives (reuse `analytics-prompt-builder` shape?), how to dedupe within a day, whether to persist or always recompute.
 
 ---
 

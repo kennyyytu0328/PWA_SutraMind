@@ -5,6 +5,7 @@ import { buildPrompt } from '@/lib/prompt-builder'
 import { callGemini, GeminiError } from '@/lib/gemini'
 import { appendMessage, completeSession, getSession } from '@/lib/db'
 import { validateSegmentIds } from '@/lib/sutra'
+import { pipelineChatToAnalytics } from '@/lib/analytics-pipeline'
 import type {
   CategoryId,
   ChatMessage,
@@ -110,6 +111,7 @@ export function useChatSession(
           updated?.messages.filter((m) => m.role === 'assistant').length ?? 0
         if (assistantCount >= 3) {
           await completeSession(sessionId)
+          triggerAnalyticsFireAndForget(sessionId, apiKey)
           await refresh()
           setStatus('completed')
         } else {
@@ -176,6 +178,7 @@ export function useChatSession(
       const assistants = after?.messages.filter((m) => m.role === 'assistant').length ?? 0
       if (assistants >= 3) {
         await completeSession(sessionId)
+        triggerAnalyticsFireAndForget(sessionId, apiKey)
         await refresh()
         setStatus('completed')
       } else {
@@ -190,9 +193,18 @@ export function useChatSession(
 
   const finishSession = useCallback(async () => {
     await completeSession(sessionId)
+    triggerAnalyticsFireAndForget(sessionId, apiKey)
     await refresh()
     setStatus('completed')
-  }, [sessionId])
+  }, [sessionId, apiKey])
 
   return { session, status, error, roundNumber, freshAssistantIndex, send, retry, finishSession }
+}
+
+function triggerAnalyticsFireAndForget(sessionId: number, apiKey: string): void {
+  // Fire-and-forget. Never blocks UI. The pipeline itself swallows errors,
+  // so this catch is a defense-in-depth no-op for any unexpected throw.
+  getSession(sessionId)
+    .then((full) => (full ? pipelineChatToAnalytics(apiKey, full) : undefined))
+    .catch(() => undefined)
 }

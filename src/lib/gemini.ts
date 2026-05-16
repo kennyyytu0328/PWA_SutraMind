@@ -49,8 +49,6 @@ export function classifyGeminiError(err: unknown): GeminiError {
   if (status === 401 || status === 403) {
     return new GeminiError('AUTH_FAILED', message, false)
   }
-  // Google returns 400 (not 401) for invalid API keys with a body like
-  // {"error":{"code":400,"message":"API key not valid...","status":"INVALID_ARGUMENT"}}
   if (status === 400 && looksLikeBadApiKey(message)) {
     return new GeminiError('AUTH_FAILED', message, false)
   }
@@ -70,13 +68,15 @@ function shouldAutoRetry(err: GeminiError): boolean {
   return err.retryable && (err.kind === 'UNKNOWN' || err.kind === 'NETWORK')
 }
 
-export async function callGemini(
+/**
+ * Low-level call: runs SDK request with retry + error classification.
+ * Returns raw response text. Used by both chat and analytics paths.
+ */
+export async function callGeminiRaw(
   apiKey: string,
   payload: GeminiPayload
-): Promise<GeminiStructuredResponse> {
+): Promise<string> {
   const ai = new GoogleGenAI({ apiKey })
-
-  let raw: string
   let attempt = 0
   while (true) {
     try {
@@ -90,8 +90,7 @@ export async function callGemini(
           temperature: payload.generationConfig.temperature,
         },
       })
-      raw = response.text ?? ''
-      break
+      return response.text ?? ''
     } catch (err) {
       const classified = classifyGeminiError(err)
       if (attempt < RETRY_DELAYS_MS.length && shouldAutoRetry(classified)) {
@@ -102,14 +101,24 @@ export async function callGemini(
       throw classified
     }
   }
+}
 
+/**
+ * Chat-specific call: wraps callGeminiRaw, validates the chat response shape
+ * (referenced_segment_ids + response_text). Preserves the exact contract the
+ * chat path has always relied on.
+ */
+export async function callGemini(
+  apiKey: string,
+  payload: GeminiPayload
+): Promise<GeminiStructuredResponse> {
+  const raw = await callGeminiRaw(apiKey, payload)
   let parsed: GeminiStructuredResponse
   try {
     parsed = JSON.parse(raw) as GeminiStructuredResponse
   } catch {
     throw new GeminiError('INVALID_RESPONSE', 'Gemini returned non-JSON', true)
   }
-
   if (
     !Array.isArray(parsed.referenced_segment_ids) ||
     typeof parsed.response_text !== 'string'

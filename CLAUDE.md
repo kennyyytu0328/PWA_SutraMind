@@ -26,7 +26,7 @@ This is a **數位道場** (digital meditation space), not a productivity app. T
 - Next.js 14 (App Router) with `output: 'export'` (static export)
 - TypeScript 5, React 18, Tailwind CSS 3 (NOT 4 — pinned for config-model compatibility)
 - Dexie.js 4 + dexie-react-hooks for IndexedDB
-- `@google/genai` SDK (Gemini 2.5 Flash, structured JSON output)
+- `@google/genai` SDK (Gemma 4 `gemma-4-31b-it`, structured JSON via prompt-embedded `[Output Contract]` + SDK `responseSchema` belt-and-suspenders)
 - Vitest + fake-indexeddb for unit tests
 - pnpm (10.x) is the package manager
 
@@ -46,12 +46,15 @@ src/
     history/            # session list
     history/detail/     # single session detail (uses ?id= query param, not [id]
                         # — Next 14 static export rejects [id] + 'use client' + empty params)
+    mirror/             # /mirror — Recharts radar + trend, AppHeader nav entry
     layout.tsx          # mounts <LotusSymbol/> + <AppHeader/> globally above <main>
   components/           # presentational UI:
                         #   ApiKeyForm, CategoryGrid, ChatMessage, ChatInput,
                         #   RoundIndicator, SegmentReference, SessionListItem,
                         #   AppHeader, Lotus (LotusSymbol + LotusGlyph),
                         #   BreathingLoader, InkDropText, SandArtExit
+                        # MindMirror/ : AttachmentIndex, RadarPanel,
+                        #               TrendPanel, EmptyMirror
   hooks/
     useApiKey.ts        # apiKey CRUD wrapper
     useSessions.ts      # liveQuery list + by-id read-only
@@ -63,6 +66,11 @@ src/
     categories.ts       # 5 category metadata + enabled flags
     prompt-builder.ts   # PURE function building Gemini payload — highest-leverage file
     gemini.ts           # SDK wrapper + GeminiError classification
+    analytics-prompt-builder.ts  # pure builder for the 5-dim extraction prompt
+    analytics-parser.ts          # tolerant JSON parser (markdown fence, brace balance, clamp)
+    analytics-pipeline.ts        # fire-and-forget pipelineChatToAnalytics
+    mirror-stats.ts              # attachmentIndex, last7/30Days, aggregateMetricsMax
+    date-utils.ts                # todayLocalISO
   data/sutra-db.json    # 9 Heart Sutra segments (canonical content; do not modify)
   types/chat.ts         # all shared types — import from here, never redefine
 ```
@@ -126,6 +134,7 @@ These are intentional and tracked in `TODO.md`:
 
 ## Recently shipped (don't re-implement)
 
+- ✅ Phase 3-A/B: analytics pipeline (Gemma extracts 5-dim metrics per session) + /mirror page (Recharts radar + trend); Dexie v2 (`analytics` + `profile` tables); AppHeader 心鏡/歷史 nav (2026-05-16)
 - ✅ All 5 dilemma categories enabled (Phase 2 #1, 2026-05-07)
 - ✅ Zen animations: BreathingLoader / InkDropText / SandArtExit + `useReducedMotion` (Phase 2 #2, 2026-05-06)
 - ✅ Gold-leaf decoration: lotus SVG, `.gold-frame` cards, global `AppHeader` (2026-05-07)
