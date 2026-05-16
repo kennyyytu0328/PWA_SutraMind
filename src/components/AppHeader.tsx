@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { LotusGlyph } from './Lotus'
 import { AmbientAudio } from './AmbientAudio'
 
@@ -9,10 +8,6 @@ export function AppHeader() {
       <h1 className="font-serif text-xl tracking-[0.25em] text-zen-text">
         心經數位道場
       </h1>
-      <nav className="ml-auto flex items-center gap-5 font-serif text-sm text-zen-muted">
-        <Link href="/mirror" className="hover:text-zen-accent">心鏡</Link>
-        <Link href="/history" className="hover:text-zen-accent">歷史</Link>
-      </nav>
       <AmbientAudio />
     </header>
   )
