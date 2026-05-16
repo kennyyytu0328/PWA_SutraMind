@@ -86,6 +86,15 @@ Brainstormed alongside 3-A/B but deferred. Idea:
 - **Multi-language UI.** Currently zh-Hant only. Lower priority since the audience is Chinese-speaking and Sutra-DB is in classical Chinese.
 - **Light theme.** Project is currently dark-only by design (matches 數位道場 aesthetic). Reconsider only if accessibility feedback warrants.
 
+### Phase 3-A/B polish (from 2026-05-16 final review)
+
+- **`firstMountRef` flip pattern in RadarPanel / TrendPanel.** Currently uses `queueMicrotask` inside render to flip a ref. Works today but mutating a ref during render is technically a React no-no under concurrent mode. Cleaner: `useEffect(() => { firstMountRef.current = false }, [])`.
+- **Extract `DIMENSION_LABELS`.** Lives only in `RadarPanel.tsx`. Phase 3-C Daily Insight will need the same Chinese-label map — move to `src/lib/mirror-stats.ts` or a new `src/lib/analytics-labels.ts` before then.
+- **AttachmentIndex header copy: 今日 vs 近日.** Currently hardcoded as 「今日執著指數」. If the user opens `/mirror` on a day they haven't recorded yet, the displayed row is actually the most-recent prior day. Either compare `today.date === todayLocalISO()` and switch to 「近日執著指數」, or accept the imprecision and document it.
+- **Extract Recharts hex constants.** `#C9A961` / `#8A8079` / `#EAE0D5` literals are duplicated (with sync comments) in `RadarPanel.tsx` and `TrendPanel.tsx`. Move to a shared `src/lib/mirror-colors.ts` so the next palette change is one edit.
+- **CLAUDE.md invariant note.** Add a one-liner that `pipelineChatToAnalytics` is the *only* code path outside chat that calls a Gemini endpoint — useful safety invariant to spell out for future contributors.
+- **Recharts 3.x visual smoke.** Plan assumed `^2.x` but `pnpm add recharts` installed `3.8.1`. tsc + manual smoke pass, but worth a re-look if Recharts publishes 3.x-specific guidance we should follow.
+
 ---
 
 ## Tech debt / paper cuts
