@@ -12,6 +12,7 @@ import type {
   ProfileRecord,
 } from '@/types/analytics'
 import { EMOTION_DIMENSIONS } from '@/types/analytics'
+import { todayLocalISO } from '@/lib/date-utils'
 
 class SutraMindDB extends Dexie {
   apiKey!: EntityTable<ApiKeyRecord, 'id'>
@@ -159,6 +160,20 @@ export async function mergeDailyAnalytics(
       source_session_ids: dedupedIds,
     })
   })
+}
+
+export async function getRecentAnalytics(
+  daysBack: number
+): Promise<DailyAnalytics[]> {
+  const today = todayLocalISO()
+  const cutoff = new Date()
+  cutoff.setDate(cutoff.getDate() - daysBack)
+  const cutoffIso = cutoff.toLocaleDateString('sv-SE')
+  // Inclusive on both ends: row.date in [cutoffIso, today]
+  return db.analytics
+    .where('date')
+    .between(cutoffIso, today, true, true)
+    .toArray()
 }
 
 // ── profile kv ──────────────────────────────────────────────

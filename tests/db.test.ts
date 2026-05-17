@@ -12,7 +12,10 @@ import {
   deleteSession,
   getDailyInsight,
   saveDailyInsight,
+  getRecentAnalytics,
+  mergeDailyAnalytics,
 } from '@/lib/db'
+import { todayLocalISO } from '@/lib/date-utils'
 import type { DailyInsightRecord } from '@/types/analytics'
 
 beforeEach(async () => {
@@ -133,5 +136,54 @@ describe('dailyInsight CRUD', () => {
     await saveDailyInsight({ ...sample, date: '2026-05-18' })
     expect((await getDailyInsight('2026-05-17'))?.date).toBe('2026-05-17')
     expect((await getDailyInsight('2026-05-18'))?.date).toBe('2026-05-18')
+  })
+})
+
+describe('getRecentAnalytics', () => {
+  const baseMetrics = {
+    work_anxiety: 5,
+    relationship_clinging: 5,
+    existential_emptiness: 5,
+    health_fear: 5,
+    acute_emotion: 5,
+  }
+
+  async function seed(date: string) {
+    await mergeDailyAnalytics(date, {
+      metrics: baseMetrics,
+      mind_summary: `summary ${date}`,
+      recommended_segment: null,
+      source_session_id: 1,
+    })
+  }
+
+  function isoDaysAgo(n: number): string {
+    const d = new Date()
+    d.setDate(d.getDate() - n)
+    return d.toLocaleDateString('sv-SE')
+  }
+
+  it('returns [] when no analytics exist', async () => {
+    expect(await getRecentAnalytics(7)).toEqual([])
+  })
+
+  it('includes only rows within the window (inclusive of today)', async () => {
+    await seed(isoDaysAgo(0)) // today
+    await seed(isoDaysAgo(6)) // 6 days ago — in window
+    await seed(isoDaysAgo(7)) // 7 days ago — boundary, in window
+    await seed(isoDaysAgo(8)) // 8 days ago — out
+    const got = await getRecentAnalytics(7)
+    const dates = got.map((r) => r.date).sort()
+    expect(dates).toEqual([isoDaysAgo(7), isoDaysAgo(6), isoDaysAgo(0)].sort())
+  })
+
+  it('returns chronologically ascending', async () => {
+    await seed(isoDaysAgo(2))
+    await seed(isoDaysAgo(0))
+    await seed(isoDaysAgo(5))
+    const got = await getRecentAnalytics(7)
+    expect(got.map((r) => r.date)).toEqual(
+      [isoDaysAgo(5), isoDaysAgo(2), isoDaysAgo(0)]
+    )
   })
 })
