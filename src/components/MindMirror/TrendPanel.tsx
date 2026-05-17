@@ -11,6 +11,7 @@ import {
 } from 'recharts'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { attachmentIndex, last30Days } from '@/lib/mirror-stats'
+import { ZEN_ACCENT, ZEN_MUTED, ZEN_TEXT } from '@/lib/mirror-colors'
 import type { DailyAnalytics } from '@/types/analytics'
 
 interface Props {
@@ -65,28 +66,26 @@ export function TrendPanel({ rows }: Props) {
   return (
     <section className="gold-frame p-6">
       <h3 className="text-sm tracking-widest text-zen-muted mb-4">空性趨勢</h3>
-      {/* Hex values mirror tailwind.config.ts theme.extend.colors.zen.
-          Keep in sync with RadarPanel and the Tailwind palette. */}
       <div className="w-full" style={{ height: 220 }}>
         <ResponsiveContainer>
           <LineChart data={data} margin={{ top: 8, right: 16, left: -8, bottom: 8 }}>
-            <CartesianGrid stroke="#8A8079" strokeDasharray="3 3" />
+            <CartesianGrid stroke={ZEN_MUTED} strokeDasharray="3 3" />
             <XAxis
               dataKey="label"
-              tick={{ fill: '#EAE0D5', fontSize: 11 }}
+              tick={{ fill: ZEN_TEXT, fontSize: 11 }}
               interval="preserveStartEnd"
             />
             <YAxis
               domain={[0, 10]}
-              tick={{ fill: '#EAE0D5', fontSize: 11 }}
+              tick={{ fill: ZEN_TEXT, fontSize: 11 }}
             />
             <Tooltip content={<ZenTooltip />} />
             <Line
               type="monotone"
               dataKey="value"
-              stroke="#C9A961"
+              stroke={ZEN_ACCENT}
               strokeWidth={2}
-              dot={{ r: 3, fill: '#C9A961' }}
+              dot={{ r: 3, fill: ZEN_ACCENT }}
               isAnimationActive={!reduce && firstMountRef.current}
               animationDuration={reduce ? 0 : 800}
             />

@@ -1,8 +1,4 @@
 'use client'
-// Color hex values below mirror tailwind.config.ts theme.extend.colors.zen
-// (accent #C9A961, muted #8A8079, text #EAE0D5). Recharts SVG props need
-// real color strings — Tailwind classes won't apply. Keep these in sync
-// when the palette changes.
 import { useRef, useState } from 'react'
 import {
   Radar,
@@ -15,6 +11,7 @@ import {
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { aggregateMetricsMax, last7Days } from '@/lib/mirror-stats'
 import { DIMENSION_LABELS } from '@/lib/analytics-labels'
+import { ZEN_ACCENT, ZEN_MUTED, ZEN_TEXT } from '@/lib/mirror-colors'
 import type { DailyAnalytics, EmotionMetrics } from '@/types/analytics'
 
 interface Props {
@@ -78,16 +75,16 @@ export function RadarPanel({ rows }: Props) {
       <div className="w-full" style={{ height: 280 }}>
         <ResponsiveContainer>
           <RadarChart data={chartData} outerRadius="75%">
-            <PolarGrid stroke="#8A8079" strokeDasharray="3 3" />
+            <PolarGrid stroke={ZEN_MUTED} strokeDasharray="3 3" />
             <PolarAngleAxis
               dataKey="dimension"
-              tick={{ fill: '#EAE0D5', fontSize: 12 }}
+              tick={{ fill: ZEN_TEXT, fontSize: 12 }}
             />
             <PolarRadiusAxis domain={[0, 10]} tick={false} axisLine={false} />
             <Radar
               dataKey="value"
-              stroke="#C9A961"
-              fill="#C9A961"
+              stroke={ZEN_ACCENT}
+              fill={ZEN_ACCENT}
               fillOpacity={0.3}
               isAnimationActive={!reduce && firstMountRef.current}
               animationDuration={reduce ? 0 : 800}
