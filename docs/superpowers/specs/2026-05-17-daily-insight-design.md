@@ -187,30 +187,30 @@ Metric numbers are rounded to one decimal place before substitution to keep the 
 
 File: `src/lib/insight-parser.ts`. Tolerant, mirrors `analytics-parser.ts`.
 
-Steps:
+Steps (mirrors `analytics-parser.ts` exactly so the pattern is familiar):
 
-1. Strip leading/trailing markdown code fences (` ```json … ``` ` or ` ``` … ``` `).
-2. Brace-balance: if more `{` than `}`, append the missing `}`s; opposite case → reject.
-3. `JSON.parse`. On failure → throw `ParseError`.
-4. Validate: `reflection` is a non-empty string. Trim. Reject if length is `< 10` or `> 120` zh-chars (loose bounds; Gemma occasionally drifts). Character count via `Array.from(s).length` to correctly handle CJK code points.
+1. `extractJsonObject(raw)` — find first `{`, walk braces (string-aware) until depth returns to 0. Tolerates markdown fences and surrounding prose. Throws `GeminiError('INVALID_RESPONSE', …, true)` on no-`{` or unbalanced braces.
+2. `JSON.parse`. On failure → `GeminiError('INVALID_RESPONSE', …, true)`.
+3. Validate root is object and `reflection` is a non-empty string. Trim.
+4. Reject if length `< 10` or `> 120` characters. Use `Array.from(s).length` to count code points correctly for CJK.
 5. Return `{ reflection: string }`.
 
-The pipeline catches `ParseError` and `NoRecentDataError` separately (see §7).
+All failures throw `GeminiError(kind='INVALID_RESPONSE')`. The pipeline propagates these to the hook (see §7).
 
 ## 7. Failure modes
 
-`callGemini` throws `GeminiError` with a `kind` discriminator (`NETWORK | RATE_LIMIT | INVALID_KEY | SERVER | PARSE_FAIL`). Insight pipeline adds `NoRecentDataError` and reuses `ParseError` from `insight-parser`. Pipeline never writes a row on any error.
+`callGeminiRaw` throws `GeminiError` with a `kind` discriminator. Real kinds from `src/lib/gemini.ts`: `AUTH_FAILED | RATE_LIMIT | NETWORK | INVALID_RESPONSE | UNKNOWN`. The underlying `callGeminiRaw` already auto-retries `NETWORK` and `UNKNOWN` internally (twice, with 3s/5s backoff), so by the time the pipeline sees one, it's a hard fail. The pipeline adds `NoRecentDataError`. Pipeline never writes a row on any error.
 
-| Error                  | Card sub-state                                       | Source                                    |
-| ---------------------- | ---------------------------------------------------- | ----------------------------------------- |
-| `NoRecentDataError`    | **empty** state (no button shown)                    | picker returned null                      |
-| `GeminiError.NETWORK`  | **ready** state + muted line 「網路未連線，稍後再試」 | callGemini                                |
-| `GeminiError.RATE_LIMIT` | **ready** state + muted line 「呼吸片刻，稍後再試」 | callGemini                                |
-| `GeminiError.INVALID_KEY` | **ready** state + muted line 「API 金鑰無效，請至設定更新」 + link to `/setup` | callGemini                                |
-| `GeminiError.SERVER`   | silent retry **once** with same prompt; if still fails → 「靜觀片刻，明日再試」 | callGemini                                |
-| `ParseError`           | silent retry **once** with same prompt; if still fails → 「靜觀片刻，明日再試」 | parser                                    |
+| Error caught                       | Card sub-state                                                                  |
+| ---------------------------------- | ------------------------------------------------------------------------------- |
+| `NoRecentDataError`                | **empty** state (no button shown)                                               |
+| `GeminiError(kind=NETWORK)`        | **ready** state + muted line 「網路未連線，稍後再試」                            |
+| `GeminiError(kind=RATE_LIMIT)`     | **ready** state + muted line 「呼吸片刻，稍後再試」                              |
+| `GeminiError(kind=AUTH_FAILED)`    | **ready** state + muted line 「API 金鑰無效，請至設定更新」 + link to `/setup` |
+| `GeminiError(kind=INVALID_RESPONSE)` | **ready** state + muted line 「靜觀片刻，明日再試」 (parser failed)            |
+| `GeminiError(kind=UNKNOWN)`        | **ready** state + muted line 「靜觀片刻，明日再試」                              |
 
-Retries don't consume an additional "day slot" because no row is written until success — same discipline as the chat round counter.
+No manual retry layer in the pipeline — `callGeminiRaw`'s internal retry already covers the transient cases. No row is written on any error, so the user can tap again freely; same discipline as the chat round counter.
 
 ## 8. Dexie schema v3
 
@@ -268,7 +268,7 @@ interface UseDailyInsightReturn {
   status: InsightStatus
   insight: DailyInsightRecord | null
   segment: SutraSegment | null      // resolved from sutra-db.json when status === 'shown'
-  error: { kind: GeminiErrorKind | 'PARSE' | 'NO_DATA'; message: string } | null
+  error: { kind: GeminiErrorKind | 'NO_DATA'; message: string } | null
   request: () => Promise<void>      // no-op if status !== 'ready'
   isFirstReveal: boolean            // true on the render immediately after a successful request
                                     //  → DailyInsightCard renders prose with InkDropText mode="live"
