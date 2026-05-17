@@ -29,3 +29,12 @@ export interface ProfileRecord {
   key: string
   value: unknown
 }
+
+export interface DailyInsightRecord {
+  date: string                    // PK, YYYY-MM-DD local
+  segmentId: string               // 'segment_1' .. 'segment_9'
+  dominantDim: EmotionDimension
+  reflection: string              // Gemma output, post-parse, trimmed
+  metricsSnapshot: EmotionMetrics // what was shown to Gemma (means over 7d)
+  createdAt: number               // Date.now()
+}
