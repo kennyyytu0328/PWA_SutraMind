@@ -60,7 +60,9 @@ export function buildInsightPrompt(
 
   return {
     systemInstruction,
-    contents: [],
+    contents: [
+      { role: 'user', parts: [{ text: '請示今日靜觀' }] },
+    ],
     responseSchema: {
       type: 'object',
       properties: { reflection: { type: 'string' } },

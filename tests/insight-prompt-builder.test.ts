@@ -88,13 +88,15 @@ describe('buildInsightPrompt', () => {
     expect(p.generationConfig.temperature).toBe(0.7)
   })
 
-  it('contents is an empty array (system instruction carries everything)', () => {
+  it('contents carries a single user turn (Gemini SDK rejects empty contents with "contents are required")', () => {
     const p = buildInsightPrompt({
       metrics7d: sampleMetrics,
       dominantDim: 'work_anxiety',
       segment: sampleSegment,
     })
-    expect(p.contents).toEqual([])
+    expect(p.contents).toHaveLength(1)
+    expect(p.contents[0].role).toBe('user')
+    expect(p.contents[0].parts[0].text).toBeTruthy()
   })
 
   it('rounds incoming metrics to 1 decimal before substitution', () => {
