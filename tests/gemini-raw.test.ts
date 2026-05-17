@@ -102,9 +102,9 @@ describe('classifyGeminiError — unchanged from pre-refactor', () => {
     ).toBe('AUTH_FAILED')
   })
 
-  it('classifies unknown errors as UNKNOWN (retryable)', () => {
+  it('classifies 5xx errors as SERVICE_UNAVAILABLE (retryable)', () => {
     const e = classifyGeminiError({ status: 500, message: 'server' })
-    expect(e.kind).toBe('UNKNOWN')
+    expect(e.kind).toBe('SERVICE_UNAVAILABLE')
     expect(e.retryable).toBe(true)
   })
 })

@@ -98,6 +98,8 @@ function ChatBody({
               ? '請求過於頻繁，請稍候再試。'
               : error.kind === 'NETWORK'
               ? '網路連線失敗。'
+              : error.kind === 'SERVICE_UNAVAILABLE'
+              ? '服務暫時不穩，稍後再試。'
               : 'AI 回覆異常，請再試一次。'}
           </p>
           <div className="flex gap-3">

@@ -28,7 +28,7 @@ export class NoRecentDataError extends Error {
  *
  * - Same-day guard: returns existing row without calling Gemini.
  * - Throws NoRecentDataError if no analytics exist in the last 7 local days.
- * - Throws GeminiError (kind: NETWORK | RATE_LIMIT | AUTH_FAILED | INVALID_RESPONSE | UNKNOWN)
+ * - Throws GeminiError (kind: NETWORK | RATE_LIMIT | AUTH_FAILED | INVALID_RESPONSE | SERVICE_UNAVAILABLE | UNKNOWN)
  *   on any failure path. No row is written on any error.
  *
  * Invariant: this is the ONLY non-chat Gemini call site besides

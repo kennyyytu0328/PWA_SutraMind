@@ -26,8 +26,22 @@ describe('classifyGeminiError', () => {
     expect(e.retryable).toBe(true)
   })
 
-  it('falls back to UNKNOWN', () => {
-    const e = classifyGeminiError({ status: 500, message: 'oops' })
+  it('classifies 500 as SERVICE_UNAVAILABLE (retryable)', () => {
+    const e = classifyGeminiError({ status: 500, message: 'internal error' })
+    expect(e.kind).toBe('SERVICE_UNAVAILABLE')
+    expect(e.retryable).toBe(true)
+  })
+
+  it('classifies 502 / 503 / 504 as SERVICE_UNAVAILABLE', () => {
+    for (const status of [502, 503, 504]) {
+      const e = classifyGeminiError({ status, message: 'upstream' })
+      expect(e.kind).toBe('SERVICE_UNAVAILABLE')
+      expect(e.retryable).toBe(true)
+    }
+  })
+
+  it('falls back to UNKNOWN for unclassified errors (no status, plain message)', () => {
+    const e = classifyGeminiError({ message: 'something weird' })
     expect(e.kind).toBe('UNKNOWN')
     expect(e.retryable).toBe(true)
   })

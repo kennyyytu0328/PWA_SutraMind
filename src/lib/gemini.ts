@@ -7,6 +7,7 @@ export type GeminiErrorKind =
   | 'RATE_LIMIT'
   | 'NETWORK'
   | 'INVALID_RESPONSE'
+  | 'SERVICE_UNAVAILABLE'
   | 'UNKNOWN'
 
 export class GeminiError extends Error {
@@ -55,6 +56,9 @@ export function classifyGeminiError(err: unknown): GeminiError {
   if (status === 429) {
     return new GeminiError('RATE_LIMIT', message, true)
   }
+  if (typeof status === 'number' && status >= 500 && status < 600) {
+    return new GeminiError('SERVICE_UNAVAILABLE', message, true)
+  }
   return new GeminiError('UNKNOWN', message, true)
 }
 
@@ -65,7 +69,12 @@ const RETRY_DELAYS_MS = [3000, 5000]
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 
 function shouldAutoRetry(err: GeminiError): boolean {
-  return err.retryable && (err.kind === 'UNKNOWN' || err.kind === 'NETWORK')
+  return (
+    err.retryable &&
+    (err.kind === 'UNKNOWN' ||
+      err.kind === 'NETWORK' ||
+      err.kind === 'SERVICE_UNAVAILABLE')
+  )
 }
 
 /**

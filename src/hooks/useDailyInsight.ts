@@ -39,7 +39,11 @@ export function useDailyInsight(): UseDailyInsightReturn {
   const firstRevealRef = useRef<string | null>(null)
 
   const request = useCallback(async () => {
-    if (!apiKey || requesting) return
+    if (requesting) return
+    if (!apiKey) {
+      setError({ kind: 'AUTH_FAILED', message: 'API 金鑰無效，請至設定更新' })
+      return
+    }
     setRequesting(true)
     setError(null)
     try {
@@ -51,6 +55,7 @@ export function useDailyInsight(): UseDailyInsightReturn {
       } else if (err instanceof GeminiError) {
         setError({ kind: err.kind, message: messageFor(err.kind) })
       } else {
+        console.error('[useDailyInsight] unexpected error', err)
         setError({ kind: 'UNKNOWN', message: '靜觀片刻，明日再試' })
       }
     } finally {
@@ -90,6 +95,7 @@ function messageFor(kind: GeminiErrorKind): string {
     case 'RATE_LIMIT': return '呼吸片刻，稍後再試'
     case 'AUTH_FAILED': return 'API 金鑰無效，請至設定更新'
     case 'INVALID_RESPONSE': return '靜觀片刻，明日再試'
+    case 'SERVICE_UNAVAILABLE': return '服務暫時不穩，稍後再試'
     case 'UNKNOWN':
     default: return '靜觀片刻，明日再試'
   }
