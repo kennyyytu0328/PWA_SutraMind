@@ -7,6 +7,7 @@ import type {
 } from '@/types/chat'
 import type {
   DailyAnalytics,
+  DailyInsightRecord,
   EmotionMetrics,
   ProfileRecord,
 } from '@/types/analytics'
@@ -17,6 +18,7 @@ class SutraMindDB extends Dexie {
   sessions!: EntityTable<Session, 'id'>
   analytics!: EntityTable<DailyAnalytics, 'date'>
   profile!: EntityTable<ProfileRecord, 'key'>
+  dailyInsight!: EntityTable<DailyInsightRecord, 'date'>
 
   constructor() {
     super('SutraMindDB')
@@ -29,6 +31,13 @@ class SutraMindDB extends Dexie {
       sessions: '++id, category, startedAt',
       analytics: 'date',
       profile: 'key',
+    })
+    this.version(3).stores({
+      apiKey: '++id',
+      sessions: '++id, category, startedAt',
+      analytics: 'date',
+      profile: 'key',
+      dailyInsight: 'date',
     })
   }
 }
@@ -160,4 +169,17 @@ export async function getProfile<T = unknown>(key: string): Promise<T | null> {
 
 export async function setProfile(key: string, value: unknown): Promise<void> {
   await db.profile.put({ key, value })
+}
+
+// ── dailyInsight CRUD ───────────────────────────────────────
+export async function getDailyInsight(
+  date: string
+): Promise<DailyInsightRecord | undefined> {
+  return db.dailyInsight.get(date)
+}
+
+export async function saveDailyInsight(
+  row: DailyInsightRecord
+): Promise<void> {
+  await db.dailyInsight.put(row)
 }
