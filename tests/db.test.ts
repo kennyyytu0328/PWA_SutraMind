@@ -1,8 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { db, saveApiKey, loadApiKey, clearApiKey,
-         createSession, appendMessage, completeSession, listSessions,
-         getSession, deleteSession } from '@/lib/db'
 import {
+  db,
+  saveApiKey,
+  loadApiKey,
+  clearApiKey,
+  createSession,
+  appendMessage,
+  completeSession,
+  listSessions,
+  getSession,
+  deleteSession,
   getDailyInsight,
   saveDailyInsight,
 } from '@/lib/db'
