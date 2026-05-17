@@ -93,7 +93,7 @@ src/
 
 **Privacy hard rules:** API key stays in IndexedDB (currently plain — encryption on the TODO list). Never send anything to a server we control. No analytics. No telemetry. The `<a>` tag to Google AI Studio in `ApiKeyForm` is the only non-Gemini network call this app makes.
 
-**Prompt changes:** All prompt engineering lives in `src/lib/prompt-builder.ts` and is unit-tested in `tests/prompt-builder.test.ts`. Changes there should keep tests passing AND get manually re-smoked against the 3 standard inputs in spec §10 to verify Zen quality didn't regress.
+**Prompt changes:** All prompt engineering lives in `src/lib/prompt-builder.ts` and is unit-tested in `tests/prompt-builder.test.ts`. Changes there should keep tests passing AND get manually re-smoked against the 3 standard inputs in spec §10 to verify Zen quality didn't regress. The same applies to `src/lib/analytics-prompt-builder.ts` / `tests/analytics-prompt-builder.test.ts` and `src/lib/insight-prompt-builder.ts` / `tests/insight-prompt-builder.test.ts` — both have their own canonical tests.
 
 **Round counter discipline:** It advances ONLY on a successful schema-valid assistant turn. Errors and rate limits don't burn a round. Any change to `useChatSession` must preserve this — see `tests/db.test.ts` and the spec §7 error table.
 
@@ -134,6 +134,7 @@ These are intentional and tracked in `TODO.md`:
 
 ## Recently shipped (don't re-implement)
 
+- ✅ Phase 3-C: Daily Insight (`/mirror` card 「今日靜觀」 — tap-to-request Gemma reflection drawn from last-7-day metrics + client-picked sutra segment; Dexie v3 adds `dailyInsight` table; same-day guard preserves API quota). New invariant: `requestDailyInsight` is the *second* and only other non-chat Gemini call site alongside `pipelineChatToAnalytics` (2026-05-17)
 - ✅ Phase 3-A/B: analytics pipeline (Gemma extracts 5-dim metrics per session) + /mirror page (Recharts radar + trend); Dexie v2 (`analytics` + `profile` tables); AppHeader 心鏡/歷史 nav (2026-05-16)
 - ✅ All 5 dilemma categories enabled (Phase 2 #1, 2026-05-07)
 - ✅ Zen animations: BreathingLoader / InkDropText / SandArtExit + `useReducedMotion` (Phase 2 #2, 2026-05-06)

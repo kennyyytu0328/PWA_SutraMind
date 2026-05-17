@@ -67,11 +67,12 @@ Same spec/plan as 3-A.
 - Recharts radar + line chart, animations honor `prefers-reduced-motion`.
 - `AppHeader` gains 心鏡 / 歷史 nav entries.
 
-### 9. Phase 3-C: Daily Insight ritual (next up)
-Brainstormed alongside 3-A/B but deferred. Idea:
-- Once per local day, surface a single short reflection drawn from the user's recent metrics + a matching sutra segment.
-- Likely a card on `/mirror` (or `/` post-setup) with a 「今日靜觀」moment; opt-in, no notifications.
-- Open: where the prompt lives (reuse `analytics-prompt-builder` shape?), how to dedupe within a day, whether to persist or always recompute.
+### 9. Phase 3-C: Daily Insight ✅ shipped 2026-05-17
+Spec: `docs/superpowers/specs/2026-05-17-daily-insight-design.md` · Plan: `docs/superpowers/plans/2026-05-17-daily-insight-plan.md`
+- `/mirror` shows a top-of-page `DailyInsightCard` with four states: empty / ready / requesting / shown.
+- Tap 「請示今日靜觀」 → Gemma call with 7-day mean metrics + client-picked segment (argmax across 5 dims, deterministic priority tie-break) → 30-60 zh-char reflection persisted in new `dailyInsight` Dexie table keyed by local YYYY-MM-DD.
+- Same-day guard returns existing row without burning quota; no row is ever written on error so the user can retap freely.
+- Two `analytics-labels.ts` + `mirror-colors.ts` shared libs absorbed two Phase 3-A/B polish items en route.
 
 ---
 
@@ -89,9 +90,7 @@ Brainstormed alongside 3-A/B but deferred. Idea:
 ### Phase 3-A/B polish (from 2026-05-16 final review)
 
 - **`firstMountRef` flip pattern in RadarPanel / TrendPanel.** Currently uses `queueMicrotask` inside render to flip a ref. Works today but mutating a ref during render is technically a React no-no under concurrent mode. Cleaner: `useEffect(() => { firstMountRef.current = false }, [])`.
-- **Extract `DIMENSION_LABELS`.** Lives only in `RadarPanel.tsx`. Phase 3-C Daily Insight will need the same Chinese-label map — move to `src/lib/mirror-stats.ts` or a new `src/lib/analytics-labels.ts` before then.
 - **AttachmentIndex header copy: 今日 vs 近日.** Currently hardcoded as 「今日執著指數」. If the user opens `/mirror` on a day they haven't recorded yet, the displayed row is actually the most-recent prior day. Either compare `today.date === todayLocalISO()` and switch to 「近日執著指數」, or accept the imprecision and document it.
-- **Extract Recharts hex constants.** `#C9A961` / `#8A8079` / `#EAE0D5` literals are duplicated (with sync comments) in `RadarPanel.tsx` and `TrendPanel.tsx`. Move to a shared `src/lib/mirror-colors.ts` so the next palette change is one edit.
 - **CLAUDE.md invariant note.** Add a one-liner that `pipelineChatToAnalytics` is the *only* code path outside chat that calls a Gemini endpoint — useful safety invariant to spell out for future contributors.
 - **Recharts 3.x visual smoke.** Plan assumed `^2.x` but `pnpm add recharts` installed `3.8.1`. tsc + manual smoke pass, but worth a re-look if Recharts publishes 3.x-specific guidance we should follow.
 
