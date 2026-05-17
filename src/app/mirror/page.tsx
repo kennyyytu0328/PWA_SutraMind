@@ -6,6 +6,7 @@ import { AttachmentIndex } from '@/components/MindMirror/AttachmentIndex'
 import { RadarPanel } from '@/components/MindMirror/RadarPanel'
 import { TrendPanel } from '@/components/MindMirror/TrendPanel'
 import { EmptyMirror } from '@/components/MindMirror/EmptyMirror'
+import { DailyInsightCard } from '@/components/MindMirror/DailyInsightCard'
 import { BreathingLoader } from '@/components/BreathingLoader'
 
 function BackLink() {
@@ -56,6 +57,7 @@ export default function MirrorPage() {
     <div className="max-w-2xl mx-auto px-4 py-10 flex flex-col gap-6">
       <BackLink />
       <MirrorHeader />
+      <DailyInsightCard />
       <AttachmentIndex row={today} />
       <RadarPanel rows={rows} />
       <TrendPanel rows={rows} />
