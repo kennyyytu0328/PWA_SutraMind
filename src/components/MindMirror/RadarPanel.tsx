@@ -14,18 +14,11 @@ import {
 } from 'recharts'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { aggregateMetricsMax, last7Days } from '@/lib/mirror-stats'
+import { DIMENSION_LABELS } from '@/lib/analytics-labels'
 import type { DailyAnalytics, EmotionMetrics } from '@/types/analytics'
 
 interface Props {
   rows: DailyAnalytics[]
-}
-
-const DIMENSION_LABELS: Record<keyof EmotionMetrics, string> = {
-  work_anxiety: '職場焦慮',
-  relationship_clinging: '關係執著',
-  existential_emptiness: '存在虛無',
-  health_fear: '健康恐懼',
-  acute_emotion: '突發情緒',
 }
 
 type Mode = 'today' | 'week'
