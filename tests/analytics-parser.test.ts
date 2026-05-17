@@ -110,3 +110,38 @@ describe('parseAnalyticsResponse — invalid input throws GeminiError(INVALID_RE
     expect(() => parseAnalyticsResponse('{ "metrics": { bad')).toThrow(GeminiError)
   })
 })
+
+describe('parseAnalyticsResponse — rejects prompt-echo in mind_summary', () => {
+  const echoSamples = [
+    '[Role] 你是專精心經與情緒量化分析的 observer',
+    '[Output Contract] 你 MUST 回傳單一 JSON 物件',
+    '[Dimension Definitions]',
+    '[Scoring Rules]',
+    '[Sutra Hint]',
+    '[Session Category]',
+    '// a single parseable JSON array. Do not include any extra text',
+    'When producing JSON you must follow the schema provided in the context',
+  ]
+
+  for (const sample of echoSamples) {
+    it(`throws when mind_summary contains prompt marker: ${sample.slice(0, 32)}…`, () => {
+      const raw = JSON.stringify({ ...valid, mind_summary: sample })
+      expect(() => parseAnalyticsResponse(raw)).toThrow(GeminiError)
+      try {
+        parseAnalyticsResponse(raw)
+      } catch (e) {
+        expect((e as GeminiError).kind).toBe('INVALID_RESPONSE')
+      }
+    })
+  }
+
+  it('throws when mind_summary exceeds the length cap', () => {
+    const raw = JSON.stringify({ ...valid, mind_summary: '心'.repeat(241) })
+    expect(() => parseAnalyticsResponse(raw)).toThrow(GeminiError)
+  })
+
+  it('accepts a normal short Zen summary unchanged', () => {
+    const r = parseAnalyticsResponse(JSON.stringify(valid))
+    expect(r.mind_summary).toBe(valid.mind_summary)
+  })
+})

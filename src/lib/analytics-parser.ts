@@ -10,6 +10,28 @@ export interface ParsedAnalytics {
 
 const SEGMENT_RE = /^segment_[1-9]$/
 
+const MIND_SUMMARY_MAX_LEN = 240
+
+// Markers that indicate the model regurgitated the prompt instead of producing
+// a real Zen summary. Any hit means the response is corrupt — reject so the
+// pipeline doesn't persist garbage that later renders verbatim on /mirror.
+const PROMPT_ECHO_MARKERS = [
+  '[Role]',
+  '[Output Contract]',
+  '[Dimension Definitions]',
+  '[Scoring Rules]',
+  '[Sutra Hint]',
+  '[Session Category]',
+  'parseable JSON',
+  'producing JSON',
+  'JSON 物件',
+  'schema provided',
+]
+
+function looksLikePromptEcho(summary: string): boolean {
+  return PROMPT_ECHO_MARKERS.some((m) => summary.includes(m))
+}
+
 function extractJsonObject(raw: string): string {
   // Find the first '{' and walk braces to find the matching '}'.
   // Tolerates markdown fences (```json ... ```) and surrounding prose.
@@ -74,6 +96,12 @@ export function parseAnalyticsResponse(raw: string): ParsedAnalytics {
   }
   if (typeof root.mind_summary !== 'string') {
     throw new GeminiError('INVALID_RESPONSE', 'Analytics mind_summary missing', true)
+  }
+  if (root.mind_summary.length > MIND_SUMMARY_MAX_LEN) {
+    throw new GeminiError('INVALID_RESPONSE', 'Analytics mind_summary exceeds length cap', true)
+  }
+  if (looksLikePromptEcho(root.mind_summary)) {
+    throw new GeminiError('INVALID_RESPONSE', 'Analytics mind_summary contains prompt echo', true)
   }
   const rec = root.recommended_segment
   const recommended_segment =
