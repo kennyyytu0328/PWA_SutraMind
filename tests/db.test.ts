@@ -167,14 +167,14 @@ describe('getRecentAnalytics', () => {
     expect(await getRecentAnalytics(7)).toEqual([])
   })
 
-  it('includes only rows within the window (inclusive of today)', async () => {
-    await seed(isoDaysAgo(0)) // today
-    await seed(isoDaysAgo(6)) // 6 days ago — in window
-    await seed(isoDaysAgo(7)) // 7 days ago — boundary, in window
+  it('returns exactly N calendar days inclusive of today', async () => {
+    await seed(isoDaysAgo(0)) // today — in window
+    await seed(isoDaysAgo(6)) // 6 days ago — boundary, in window
+    await seed(isoDaysAgo(7)) // 7 days ago — OUT of window
     await seed(isoDaysAgo(8)) // 8 days ago — out
     const got = await getRecentAnalytics(7)
     const dates = got.map((r) => r.date).sort()
-    expect(dates).toEqual([isoDaysAgo(7), isoDaysAgo(6), isoDaysAgo(0)].sort())
+    expect(dates).toEqual([isoDaysAgo(6), isoDaysAgo(0)].sort())
   })
 
   it('returns chronologically ascending', async () => {

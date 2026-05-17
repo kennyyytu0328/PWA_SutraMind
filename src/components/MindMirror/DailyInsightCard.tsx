@@ -34,7 +34,6 @@ export function DailyInsightCard() {
           <button
             type="button"
             onClick={request}
-            aria-busy={false}
             className="border border-zen-accent/60 text-zen-accent px-5 py-2 text-sm tracking-widest hover:bg-zen-accent/10 transition-colors"
           >
             請示今日靜觀

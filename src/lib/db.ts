@@ -167,9 +167,9 @@ export async function getRecentAnalytics(
 ): Promise<DailyAnalytics[]> {
   const today = todayLocalISO()
   const cutoff = new Date()
-  cutoff.setDate(cutoff.getDate() - daysBack)
+  cutoff.setDate(cutoff.getDate() - daysBack + 1)
   const cutoffIso = cutoff.toLocaleDateString('sv-SE')
-  // Inclusive on both ends: row.date in [cutoffIso, today]
+  // Returns up to `daysBack` calendar days inclusive of today: [today - (daysBack-1), today]
   return db.analytics
     .where('date')
     .between(cutoffIso, today, true, true)
