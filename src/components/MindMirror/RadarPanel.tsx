@@ -84,8 +84,10 @@ export function RadarPanel({ rows }: Props) {
             <Radar
               dataKey="value"
               stroke={ZEN_ACCENT}
+              strokeWidth={1.5}
               fill={ZEN_ACCENT}
-              fillOpacity={0.3}
+              fillOpacity={0.55}
+              dot={{ r: 2.5, fill: ZEN_ACCENT, stroke: ZEN_ACCENT }}
               isAnimationActive={!reduce && firstMountRef.current}
               animationDuration={reduce ? 0 : 800}
             />

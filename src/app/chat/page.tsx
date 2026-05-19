@@ -62,6 +62,7 @@ function ChatBody({
 
   const completedRounds = session.messages.filter((m) => m.role === 'assistant').length
   const isCompleted = status === 'completed' || session.status === 'completed'
+  const hasUnsavedTurns = !isCompleted && session.messages.length > 0
 
   return (
     <div className="flex flex-col gap-6">
@@ -71,6 +72,22 @@ function ChatBody({
         </Link>
         <RoundIndicator current={roundNumber} completed={completedRounds} />
       </header>
+
+      {hasUnsavedTurns && (
+        <div
+          key={completedRounds}
+          className="ink-bloom ink-bloom-show flex flex-col items-center gap-1 -mt-2"
+        >
+          <p className="font-serif text-xs text-zen-muted/70 tracking-[0.2em]">
+            尚未圓滿　今日心鏡將不映此境
+          </p>
+          <p className="font-serif text-[11px] text-zen-muted/55 tracking-[0.15em]">
+            {completedRounds === 0
+              ? '圓滿三巡，方得安住此境'
+              : '圓滿三巡，或輕觸下方「提早放下並結束」以安住'}
+          </p>
+        </div>
+      )}
 
       <div className="flex flex-col gap-4 min-h-[40vh]">
         {session.messages.map((m, i) => (

@@ -38,6 +38,8 @@ export default function RootLayout({
     <html lang="zh-Hant">
       <body className="bg-zen-bg text-zen-text antialiased min-h-screen">
         <LotusSymbol />
+        <div className="zen-ambient" aria-hidden="true" />
+        <div className="zen-grain" aria-hidden="true" />
         <AppHeader />
         <main className="mx-auto max-w-2xl px-6 py-12">
           {children}
