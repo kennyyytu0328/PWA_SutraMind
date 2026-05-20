@@ -23,6 +23,11 @@ export const metadata: Metadata = {
     title: 'SutraMind',
     statusBarStyle: 'black-translucent',
   },
+  // Modern PWA equivalent of `apple-mobile-web-app-capable`. iOS keeps the
+  // Apple-prefixed one for now; this satisfies the Chromium deprecation.
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
 }
 
 export const viewport: Viewport = {

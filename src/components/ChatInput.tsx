@@ -37,7 +37,7 @@ export function ChatInput({ disabled, onSubmit, placeholder }: Props) {
       <button
         type="submit"
         disabled={disabled || !value.trim()}
-        className="self-end bg-zen-accent/80 hover:bg-zen-accent text-zen-bg font-medium px-5 py-3 rounded-md disabled:opacity-30"
+        className="self-end zen-glow-button px-5 py-3 disabled:opacity-30"
       >
         送出
       </button>

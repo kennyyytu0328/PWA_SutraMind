@@ -1,12 +1,15 @@
 'use client'
 import Link from 'next/link'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { listAnalytics } from '@/lib/db'
+import { getMostRecentCompletedSessionToday, listAnalytics } from '@/lib/db'
+import { todayLocalISO } from '@/lib/date-utils'
+import { useApiKey } from '@/hooks/useApiKey'
 import { AttachmentIndex } from '@/components/MindMirror/AttachmentIndex'
 import { RadarPanel } from '@/components/MindMirror/RadarPanel'
 import { TrendPanel } from '@/components/MindMirror/TrendPanel'
 import { EmptyMirror } from '@/components/MindMirror/EmptyMirror'
 import { DailyInsightCard } from '@/components/MindMirror/DailyInsightCard'
+import { AnalyticsRetry } from '@/components/MindMirror/AnalyticsRetry'
 import { BreathingLoader } from '@/components/BreathingLoader'
 
 function BackLink() {
@@ -33,6 +36,11 @@ function MirrorHeader() {
 
 export default function MirrorPage() {
   const rows = useLiveQuery(() => listAnalytics(), [])
+  const todaysCompletedSession = useLiveQuery(
+    () => getMostRecentCompletedSessionToday(),
+    []
+  )
+  const { apiKey } = useApiKey()
 
   if (rows === undefined) {
     return (
@@ -42,7 +50,15 @@ export default function MirrorPage() {
     )
   }
 
-  if (rows.length === 0) {
+  const todayIso = todayLocalISO()
+  const hasTodayAnalytics = rows.some((r) => r.date === todayIso)
+  const showRetry =
+    !hasTodayAnalytics &&
+    todaysCompletedSession != null &&
+    todaysCompletedSession.id != null &&
+    apiKey != null
+
+  if (rows.length === 0 && !showRetry) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-10 flex flex-col gap-6">
         <BackLink />
@@ -52,15 +68,24 @@ export default function MirrorPage() {
     )
   }
 
-  const today = rows[rows.length - 1]
   return (
     <div className="max-w-2xl mx-auto px-4 py-10 flex flex-col gap-6">
       <BackLink />
       <MirrorHeader />
-      <DailyInsightCard />
-      <AttachmentIndex row={today} />
-      <RadarPanel rows={rows} />
-      <TrendPanel rows={rows} />
+      {showRetry && (
+        <AnalyticsRetry
+          sessionId={todaysCompletedSession!.id!}
+          apiKey={apiKey!}
+        />
+      )}
+      {rows.length > 0 && (
+        <>
+          <DailyInsightCard />
+          <AttachmentIndex row={rows[rows.length - 1]} />
+          <RadarPanel rows={rows} />
+          <TrendPanel rows={rows} />
+        </>
+      )}
     </div>
   )
 }

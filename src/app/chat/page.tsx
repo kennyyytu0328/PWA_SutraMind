@@ -141,8 +141,9 @@ function ChatBody({
       )}
 
       {isCompleted ? (
-        <div className="flex flex-col gap-4 border-t border-zen-muted/20 pt-6">
-          <p className="text-zen-muted">這次對話已完成。</p>
+        <div className="flex flex-col gap-4 pt-2">
+          <div className="zen-hairline" />
+          <p className="text-zen-muted leading-loose tracking-[0.05em]">這次對話已完成。</p>
           <div className="flex gap-3">
             <Link
               href="/history"
@@ -152,7 +153,7 @@ function ChatBody({
             </Link>
             <Link
               href="/categories"
-              className="bg-zen-accent/80 hover:bg-zen-accent text-zen-bg font-medium px-5 py-3 rounded-md"
+              className="zen-glow-button px-5 py-3"
             >
               放下並重新開始
             </Link>

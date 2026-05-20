@@ -39,17 +39,17 @@ Spec: `docs/superpowers/specs/2026-05-07-sutra-decoration-design.md` · Plan: `d
 - basePath-aware (start_url, scope, swUrl, manifest URL all derived from `NEXT_PUBLIC_BASE_PATH`).
 - Open follow-ups: install prompt UX (none yet — relies on browser default), graceful offline copy on /chat (currently bubbles up the NETWORK error), per-platform PNG icons for older iOS.
 
-### 4. API-key encryption
-Replace plain storage with Web Crypto:
-- Generate device-bound AES-GCM key from `crypto.subtle.generateKey`, persist key in IndexedDB
-- Encrypt API key on save, decrypt on load
-- Migration path for existing plain-stored keys (read once, re-save encrypted)
-- Risk: device-bound key with no passphrase is convenience-encryption (recoverable by anyone with device access). Document the limit honestly. True passphrase-based encryption blocks the BYOK quick-start UX — not worth it for this app.
+### 4. API-key encryption — ⚖️ decided against 2026-05-20
+Decision: keep plain storage, document the limit honestly in `/setup` copy.
+- Threat model review showed device-bound AES-GCM is convenience-encryption only — the AES key would sit in the same IndexedDB as the ciphertext, so any attacker with code/filesystem access on the device defeats it trivially. Only real defense it adds is against casual DevTools peeking.
+- True protection needs a user passphrase (PBKDF2/Argon2 → AES key, never persisted), which breaks BYOK's "paste key, start meditating" UX. Not worth the ritual for an app this size.
+- `ApiKeyForm` footnote updated to disclose: 「金鑰以明文存放、未加密；請勿在共用或公用裝置上使用。」
+- Revisit only if (a) we ever ship multi-user or shared-device support, or (b) a credible XSS surface appears (third-party scripts, user-generated HTML).
 
-### 5. GitHub Pages deploy workflow
-- `.github/workflows/deploy.yml`: pnpm install → test → build → publish `out/` to `gh-pages` branch
-- Configure `next.config.mjs` `basePath` and `assetPrefix` for the `<repo>.github.io/<project>/` path (or set up a custom domain)
-- Manual smoke against the deployed URL before announcing
+### 5. GitHub Pages deploy workflow ✅ shipped 2026-05-07
+- `.github/workflows/deploy.yml`: push-to-main + manual dispatch; `pnpm install --frozen-lockfile` → `pnpm test` (gates the build) → `pnpm build` with `BASE_PATH=/PWA_SutraMind` → upload `out/` via `actions/upload-pages-artifact@v3` → `actions/deploy-pages@v4` (native Pages flow, not a `gh-pages` branch).
+- `next.config.mjs` reads `BASE_PATH` env and wires `basePath` + `assetPrefix` + exposes `NEXT_PUBLIC_BASE_PATH` for the SW / manifest registration code paths.
+- Open follow-up: manual smoke against the live URL after first deploy; consider a custom domain later.
 
 ### 6. History analytics (read-only stats) — superseded by Phase 3-A/B (Mind Mirror)
 Original brainstorm shipped in a richer form as the `/mirror` page (Phase 3-A/B below).
@@ -81,7 +81,7 @@ Spec: `docs/superpowers/specs/2026-05-17-daily-insight-design.md` · Plan: `docs
 - **`/history/[id]` proper static route.** Currently we use `?id=` because Next 14 + `output: 'export'` rejects `'use client' + generateStaticParams`. Worth revisiting in Next 15 or finding a trampoline pattern. Cosmetic only; functionally fine.
 - **Component tests (RTL).** Skipped at skeleton stage. Worthwhile for `ChatInput`, `RoundIndicator`, `SegmentReference` once UI stabilizes.
 - **E2E smoke (Playwright).** A single happy-path test against the dev server (paste fake key → see error banner; or use a recorded fixture). Catches regressions in the Suspense / route-guard flow.
-- **`abandonStaleActiveSessions` sharpening.** Currently fires on every / mount, which would mark a mid-chat session as abandoned if user manually navigates back to /. Edge case but worth fixing — only abandon if `Date.now() - startedAt > some threshold`.
+- ~~**`abandonStaleActiveSessions` sharpening.**~~ ✅ done 2026-05-20. Now takes an optional `staleThresholdMs` (default `STALE_SESSION_THRESHOLD_MS = 1h`); only abandons sessions older than the threshold. Mid-chat back-nav to `/` no longer kills the session. Also fixed a latent bug — the prior `.where('status').equals('active')` query always threw `SchemaError` because `status` isn't in the Dexie index schema, so stale-session abandonment had silently never worked in production (`page.tsx` `.catch(() => {})` swallowed it). Replaced with `.filter()` (full scan; sessions table is tiny). 5 new tests in `tests/db.test.ts`.
 - **Streaming Gemini response.** Phase 2 #2 used fake streaming (client-side reveal of a full single-shot reply) to keep the `callGemini` contract intact. Real `generateContentStream` would let the first ink-drop appear within ~600ms vs ~3-5s for full reply — quality win, not blocking anything.
 - **Model switching UI.** AGENTS.md mentions Gemini 3.1 Flash Lite as an experimental option. A simple settings toggle on /setup. Probably waits until Phase 2.
 - **Multi-language UI.** Currently zh-Hant only. Lower priority since the audience is Chinese-speaking and Sutra-DB is in classical Chinese.
@@ -89,8 +89,8 @@ Spec: `docs/superpowers/specs/2026-05-17-daily-insight-design.md` · Plan: `docs
 
 ### Phase 3-A/B polish (from 2026-05-16 final review)
 
-- **`firstMountRef` flip pattern in RadarPanel / TrendPanel.** Currently uses `queueMicrotask` inside render to flip a ref. Works today but mutating a ref during render is technically a React no-no under concurrent mode. Cleaner: `useEffect(() => { firstMountRef.current = false }, [])`.
-- **AttachmentIndex header copy: 今日 vs 近日.** Currently hardcoded as 「今日執著指數」. If the user opens `/mirror` on a day they haven't recorded yet, the displayed row is actually the most-recent prior day. Either compare `today.date === todayLocalISO()` and switch to 「近日執著指數」, or accept the imprecision and document it.
+- ~~**`firstMountRef` flip pattern in RadarPanel / TrendPanel.**~~ ✅ done 2026-05-20. Moved from `queueMicrotask`-during-render to `useEffect(() => { firstMountRef.current = false }, [])` in both panels — concurrent-mode safe.
+- ~~**AttachmentIndex header copy: 今日 vs 近日.**~~ ✅ done 2026-05-20. Heading now reads 「今日執著指數」 only when `row.date === todayLocalISO()`, otherwise 「近日執著指數」.
 - **CLAUDE.md invariant note.** Add a one-liner that `pipelineChatToAnalytics` is the *only* code path outside chat that calls a Gemini endpoint — useful safety invariant to spell out for future contributors.
 - **Recharts 3.x visual smoke.** Plan assumed `^2.x` but `pnpm add recharts` installed `3.8.1`. tsc + manual smoke pass, but worth a re-look if Recharts publishes 3.x-specific guidance we should follow.
 

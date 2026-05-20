@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Radar,
   RadarChart,
@@ -9,6 +9,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
+import { useDeferredMount } from '@/hooks/useDeferredMount'
 import { aggregateMetricsMax, last7Days } from '@/lib/mirror-stats'
 import { DIMENSION_LABELS } from '@/lib/analytics-labels'
 import { ZEN_ACCENT, ZEN_MUTED, ZEN_TEXT } from '@/lib/mirror-colors'
@@ -24,13 +25,14 @@ export function RadarPanel({ rows }: Props) {
   const [mode, setMode] = useState<Mode>('today')
   const firstMountRef = useRef(true)
   const reduce = useReducedMotion()
+  const chartReady = useDeferredMount()
 
-  if (firstMountRef.current) {
-    // flips after first commit; checked synchronously on subsequent renders
-    queueMicrotask(() => {
-      firstMountRef.current = false
-    })
-  }
+  // Flip first-mount flag only after the chart has actually mounted at
+  // least once (ready === true). Otherwise the deferred-mount delay
+  // would cause the chart to miss its intro animation.
+  useEffect(() => {
+    if (chartReady) firstMountRef.current = false
+  }, [chartReady])
 
   const today = rows[rows.length - 1]
   const metrics: EmotionMetrics =
@@ -73,7 +75,8 @@ export function RadarPanel({ rows }: Props) {
         </div>
       </div>
       <div className="w-full" style={{ height: 280 }}>
-        <ResponsiveContainer>
+        {chartReady && (
+        <ResponsiveContainer minWidth={0}>
           <RadarChart data={chartData} outerRadius="75%">
             <PolarGrid stroke={ZEN_MUTED} strokeDasharray="3 3" />
             <PolarAngleAxis
@@ -93,6 +96,7 @@ export function RadarPanel({ rows }: Props) {
             />
           </RadarChart>
         </ResponsiveContainer>
+        )}
       </div>
     </section>
   )

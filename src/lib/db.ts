@@ -94,17 +94,47 @@ export async function completeSession(id: number): Promise<void> {
   })
 }
 
-export async function abandonStaleActiveSessions(): Promise<void> {
-  const active = await db.sessions.where('status').equals('active').toArray()
+export const STALE_SESSION_THRESHOLD_MS = 60 * 60 * 1000 // 1 hour
+
+export async function abandonStaleActiveSessions(
+  staleThresholdMs: number = STALE_SESSION_THRESHOLD_MS
+): Promise<void> {
+  const now = Date.now()
+  // status is not in the Dexie index schema, so use .filter() (full scan).
+  // The sessions table stays small (one row per chat), so this is fine.
+  const active = await db.sessions
+    .filter((s) => s.status === 'active')
+    .toArray()
   for (const s of active) {
-    if (s.id != null) {
-      await db.sessions.update(s.id, { status: 'abandoned', endedAt: Date.now() })
+    if (s.id != null && now - s.startedAt > staleThresholdMs) {
+      await db.sessions.update(s.id, { status: 'abandoned', endedAt: now })
     }
   }
 }
 
 export async function listSessions(): Promise<Session[]> {
   return db.sessions.orderBy('startedAt').reverse().toArray()
+}
+
+/**
+ * Most recent `completed` session whose end-day (or start-day if not yet
+ * ended) is today in the local time zone. Used by /mirror to offer a
+ * retry affordance when the fire-and-forget analytics pipeline failed
+ * silently after the user finished a chat today.
+ */
+export async function getMostRecentCompletedSessionToday(): Promise<
+  Session | undefined
+> {
+  const today = todayLocalISO()
+  const all = await db.sessions
+    .filter((s) => s.status === 'completed')
+    .toArray()
+  const todays = all.filter((s) => {
+    const t = s.endedAt ?? s.startedAt
+    return new Date(t).toLocaleDateString('sv-SE') === today
+  })
+  todays.sort((a, b) => (b.endedAt ?? b.startedAt) - (a.endedAt ?? a.startedAt))
+  return todays[0]
 }
 
 export async function deleteSession(id: number): Promise<void> {

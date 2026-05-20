@@ -52,12 +52,15 @@ export function ChatMessage({ message, revealMode = 'static' }: Props) {
           </div>
         )}
         {!isUser && message.closingPractice && (
-          <p
-            className="mt-3 text-sm text-zen-accent border-t border-zen-muted/20 pt-3 transition-opacity duration-200"
+          <div
+            className="transition-opacity duration-200"
             style={{ opacity: revealComplete ? 1 : 0 }}
           >
-            ∙ {message.closingPractice}
-          </p>
+            <div className="zen-hairline mt-4" />
+            <p className="mt-3 text-sm text-zen-accent leading-loose tracking-[0.05em]">
+              ∙ {message.closingPractice}
+            </p>
+          </div>
         )}
       </div>
     </div>

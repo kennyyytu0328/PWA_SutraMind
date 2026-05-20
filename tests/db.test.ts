@@ -14,6 +14,9 @@ import {
   saveDailyInsight,
   getRecentAnalytics,
   mergeDailyAnalytics,
+  abandonStaleActiveSessions,
+  STALE_SESSION_THRESHOLD_MS,
+  getMostRecentCompletedSessionToday,
 } from '@/lib/db'
 import { todayLocalISO } from '@/lib/date-utils'
 import type { DailyInsightRecord } from '@/types/analytics'
@@ -95,6 +98,89 @@ describe('sessions CRUD', () => {
 
   it('deleteSession is a no-op for missing ids', async () => {
     await expect(deleteSession(99999)).resolves.toBeUndefined()
+  })
+})
+
+describe('abandonStaleActiveSessions', () => {
+  it('leaves a fresh active session alone', async () => {
+    const id = await createSession('emotion_relation')
+    await abandonStaleActiveSessions()
+    const s = await getSession(id)
+    expect(s?.status).toBe('active')
+    expect(s?.endedAt).toBeUndefined()
+  })
+
+  it('abandons an active session older than the threshold', async () => {
+    const id = await createSession('emotion_relation')
+    // Backdate startedAt to 2 hours ago — older than default 1h threshold.
+    await db.sessions.update(id, { startedAt: Date.now() - 2 * 60 * 60 * 1000 })
+    await abandonStaleActiveSessions()
+    const s = await getSession(id)
+    expect(s?.status).toBe('abandoned')
+    expect(s?.endedAt).toBeTypeOf('number')
+  })
+
+  it('honors a caller-provided threshold', async () => {
+    const id = await createSession('emotion_relation')
+    await db.sessions.update(id, { startedAt: Date.now() - 30 * 60 * 1000 })
+    // Within default 1h threshold → still active.
+    await abandonStaleActiveSessions()
+    expect((await getSession(id))?.status).toBe('active')
+    // With a tighter 10-minute threshold → abandoned.
+    await abandonStaleActiveSessions(10 * 60 * 1000)
+    expect((await getSession(id))?.status).toBe('abandoned')
+  })
+
+  it('does not touch completed sessions', async () => {
+    const id = await createSession('emotion_relation')
+    await completeSession(id)
+    await db.sessions.update(id, { startedAt: Date.now() - 10 * 60 * 60 * 1000 })
+    await abandonStaleActiveSessions()
+    expect((await getSession(id))?.status).toBe('completed')
+  })
+
+  it('default threshold constant is one hour', () => {
+    expect(STALE_SESSION_THRESHOLD_MS).toBe(60 * 60 * 1000)
+  })
+})
+
+describe('getMostRecentCompletedSessionToday', () => {
+  it('returns undefined when no sessions exist', async () => {
+    expect(await getMostRecentCompletedSessionToday()).toBeUndefined()
+  })
+
+  it('returns undefined when today\'s session is still active', async () => {
+    await createSession('emotion_relation')
+    expect(await getMostRecentCompletedSessionToday()).toBeUndefined()
+  })
+
+  it('returns a completed session finished today', async () => {
+    const id = await createSession('emotion_relation')
+    await completeSession(id)
+    const got = await getMostRecentCompletedSessionToday()
+    expect(got?.id).toBe(id)
+    expect(got?.status).toBe('completed')
+  })
+
+  it('ignores completed sessions from prior days', async () => {
+    const id = await createSession('emotion_relation')
+    await completeSession(id)
+    // Backdate endedAt to 3 days ago.
+    await db.sessions.update(id, {
+      startedAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
+      endedAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
+    })
+    expect(await getMostRecentCompletedSessionToday()).toBeUndefined()
+  })
+
+  it('returns the most recent when multiple completed sessions today', async () => {
+    const a = await createSession('emotion_relation')
+    await completeSession(a)
+    await new Promise((r) => setTimeout(r, 5))
+    const b = await createSession('emotion_relation')
+    await completeSession(b)
+    const got = await getMostRecentCompletedSessionToday()
+    expect(got?.id).toBe(b)
   })
 })
 

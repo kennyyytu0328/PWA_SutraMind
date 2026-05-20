@@ -45,12 +45,13 @@ export function ApiKeyForm({ initialValue = '', onSave }: Props) {
       <button
         type="submit"
         disabled={saving}
-        className="bg-zen-accent/80 hover:bg-zen-accent text-zen-bg font-medium px-6 py-3 rounded-md disabled:opacity-50"
+        className="zen-glow-button px-6 py-3 disabled:opacity-50"
       >
         {saving ? '儲存中...' : '儲存並開始'}
       </button>
       <p className="text-xs text-zen-muted leading-relaxed">
         金鑰僅儲存於此裝置的瀏覽器 (IndexedDB)，永不離開你的裝置。
+        為保持輕簡，金鑰以明文存放、未加密；請勿在共用或公用裝置上使用。
         前往 <a className="underline" href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">Google AI Studio</a> 取得免費 API key。
       </p>
     </form>

@@ -1,5 +1,5 @@
 'use client'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import {
   LineChart,
   Line,
@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from 'recharts'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
+import { useDeferredMount } from '@/hooks/useDeferredMount'
 import { attachmentIndex, last30Days } from '@/lib/mirror-stats'
 import { ZEN_ACCENT, ZEN_MUTED, ZEN_TEXT } from '@/lib/mirror-colors'
 import type { DailyAnalytics } from '@/types/analytics'
@@ -41,12 +42,11 @@ function ZenTooltip({ active, payload }: { active?: boolean; payload?: { payload
 export function TrendPanel({ rows }: Props) {
   const firstMountRef = useRef(true)
   const reduce = useReducedMotion()
+  const chartReady = useDeferredMount()
 
-  if (firstMountRef.current) {
-    queueMicrotask(() => {
-      firstMountRef.current = false
-    })
-  }
+  useEffect(() => {
+    if (chartReady) firstMountRef.current = false
+  }, [chartReady])
 
   if (rows.length < 3) {
     return (
@@ -67,7 +67,8 @@ export function TrendPanel({ rows }: Props) {
     <section className="gold-frame p-6">
       <h3 className="text-sm tracking-widest text-zen-muted mb-4">空性趨勢</h3>
       <div className="w-full" style={{ height: 220 }}>
-        <ResponsiveContainer>
+        {chartReady && (
+        <ResponsiveContainer minWidth={0}>
           <LineChart data={data} margin={{ top: 8, right: 16, left: -8, bottom: 8 }}>
             <CartesianGrid stroke={ZEN_MUTED} strokeDasharray="3 3" />
             <XAxis
@@ -91,6 +92,7 @@ export function TrendPanel({ rows }: Props) {
             />
           </LineChart>
         </ResponsiveContainer>
+        )}
       </div>
       <p className="mt-3 text-xs text-zen-muted font-serif text-center">
         執著漸消，度一切苦厄

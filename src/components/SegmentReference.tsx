@@ -33,7 +33,7 @@ export function SegmentReference({ ids }: Props) {
                 {s.original}
               </p>
               <div className="h-px bg-zen-accent/40 mx-auto my-3" style={{ width: '60px' }} />
-              <p className="text-zen-muted leading-relaxed">{s.vernacular}</p>
+              <p className="text-zen-muted leading-loose tracking-[0.05em]">{s.vernacular}</p>
               <LotusGlyph className="w-9 h-9 mx-auto mt-4" />
               <p className="text-[10px] tracking-[2px] text-zen-muted/70 mt-1">
                 SEGMENT {s.id.split('_')[1]}
