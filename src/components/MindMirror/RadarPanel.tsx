@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import {
   Radar,
   RadarChart,
@@ -23,16 +23,8 @@ type Mode = 'today' | 'week'
 
 export function RadarPanel({ rows }: Props) {
   const [mode, setMode] = useState<Mode>('today')
-  const firstMountRef = useRef(true)
   const reduce = useReducedMotion()
-  const chartReady = useDeferredMount()
-
-  // Flip first-mount flag only after the chart has actually mounted at
-  // least once (ready === true). Otherwise the deferred-mount delay
-  // would cause the chart to miss its intro animation.
-  useEffect(() => {
-    if (chartReady) firstMountRef.current = false
-  }, [chartReady])
+  const { ready: chartReady, firstMountRef } = useDeferredMount()
 
   const today = rows[rows.length - 1]
   const metrics: EmotionMetrics =

@@ -131,7 +131,7 @@ export async function getMostRecentCompletedSessionToday(): Promise<
     .toArray()
   const todays = all.filter((s) => {
     const t = s.endedAt ?? s.startedAt
-    return new Date(t).toLocaleDateString('sv-SE') === today
+    return todayLocalISO(new Date(t)) === today
   })
   todays.sort((a, b) => (b.endedAt ?? b.startedAt) - (a.endedAt ?? a.startedAt))
   return todays[0]

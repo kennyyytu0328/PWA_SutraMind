@@ -10,8 +10,6 @@ interface Props {
   apiKey: string
 }
 
-type State = 'idle' | 'running' | 'error'
-
 function describeError(err: unknown): string {
   const e = err as Partial<GeminiError> & { message?: string }
   if (e?.kind === 'AUTH_FAILED') return 'API key 似乎無效，請更新後再試。'
@@ -19,16 +17,17 @@ function describeError(err: unknown): string {
   if (e?.kind === 'NETWORK') return '網路連線失敗，稍後再試。'
   if (e?.kind === 'SERVICE_UNAVAILABLE') return '服務暫時不穩，稍候再試。'
   if (e?.kind === 'INVALID_RESPONSE') return '回應格式異常，再試一次。'
-  if (e?.kind === 'UNKNOWN') return e?.message ?? '未知錯誤，再試一次。'
+  // UNKNOWN GeminiErrors and plain Errors both fall through here — show
+  // their message when present, otherwise a generic Zen retry line.
   return e?.message ?? '靜觀擷取失敗，再試一次。'
 }
 
 export function AnalyticsRetry({ sessionId, apiKey }: Props) {
-  const [state, setState] = useState<State>('idle')
+  const [running, setRunning] = useState(false)
   const [errorText, setErrorText] = useState<string | null>(null)
 
   async function handleRetry() {
-    setState('running')
+    setRunning(true)
     setErrorText(null)
     try {
       const session = await getSession(sessionId)
@@ -39,7 +38,8 @@ export function AnalyticsRetry({ sessionId, apiKey }: Props) {
     } catch (err) {
       console.warn('[analytics] retry failed', err)
       setErrorText(describeError(err))
-      setState('error')
+    } finally {
+      setRunning(false)
     }
   }
 
@@ -54,10 +54,10 @@ export function AnalyticsRetry({ sessionId, apiKey }: Props) {
       <button
         type="button"
         onClick={handleRetry}
-        disabled={state === 'running'}
+        disabled={running}
         className="border border-zen-accent/60 text-zen-accent px-5 py-2 text-sm tracking-widest hover:bg-zen-accent/10 disabled:opacity-40"
       >
-        {state === 'running' ? '靜觀中…' : '重新擷取'}
+        {running ? '靜觀中…' : '重新擷取'}
       </button>
       {errorText && (
         <p className="mt-4 text-xs text-red-400/80 leading-loose">

@@ -1,5 +1,4 @@
 'use client'
-import { useEffect, useRef } from 'react'
 import {
   LineChart,
   Line,
@@ -40,13 +39,8 @@ function ZenTooltip({ active, payload }: { active?: boolean; payload?: { payload
 }
 
 export function TrendPanel({ rows }: Props) {
-  const firstMountRef = useRef(true)
   const reduce = useReducedMotion()
-  const chartReady = useDeferredMount()
-
-  useEffect(() => {
-    if (chartReady) firstMountRef.current = false
-  }, [chartReady])
+  const { ready: chartReady, firstMountRef } = useDeferredMount()
 
   if (rows.length < 3) {
     return (
