@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { renderInsightCard } from '@/lib/share-card'
 import { shareOrDownloadImage } from '@/lib/share-image'
 import { todayLocalISO } from '@/lib/date-utils'
@@ -73,39 +74,47 @@ export function ShareInsightButton({ sutraOriginal, reflection }: Props) {
         <p className="mt-1 text-xs text-zen-muted">生成失敗，再試一次。</p>
       )}
 
-      {state === 'preview' && imageUrl && (
-        <div
-          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6"
-          onClick={handleClose}
-        >
+      {state === 'preview' &&
+        imageUrl &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          // Portaled to <body>: the global <main> keeps a transform from its
+          // mount animation, which would otherwise capture this fixed overlay
+          // and push the buttons off-screen. overflow-y-auto + capped image
+          // height keep the actions reachable on short viewports.
           <div
-            className="flex flex-col items-center gap-4 max-w-sm w-full"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6 overflow-y-auto"
+            onClick={handleClose}
           >
-            <img
-              src={imageUrl}
-              alt="今日靜觀分享卡片"
-              className="w-full rounded-md shadow-2xl"
-            />
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={handleShare}
-                className="zen-glow-button px-6 py-3"
-              >
-                分享
-              </button>
-              <button
-                type="button"
-                onClick={handleClose}
-                className="border border-zen-muted/30 text-zen-muted px-6 py-3 rounded-md hover:border-zen-accent hover:text-zen-accent"
-              >
-                關閉
-              </button>
+            <div
+              className="flex flex-col items-center gap-4 max-w-sm w-full my-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={imageUrl}
+                alt="今日靜觀分享卡片"
+                className="w-auto max-w-full max-h-[70vh] rounded-md shadow-2xl"
+              />
+              <div className="flex gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="zen-glow-button px-6 py-3"
+                >
+                  分享
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="border border-zen-muted/30 text-zen-muted px-6 py-3 rounded-md hover:border-zen-accent hover:text-zen-accent"
+                >
+                  關閉
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </>
   )
 }
