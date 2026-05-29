@@ -3,6 +3,7 @@ import { useDailyInsight } from '@/hooks/useDailyInsight'
 import { LotusGlyph } from '@/components/Lotus'
 import { BreathingLoader } from '@/components/BreathingLoader'
 import { InkDropText } from '@/components/InkDropText'
+import { ShareInsightButton } from '@/components/MindMirror/ShareInsightButton'
 import { ZEN_ACCENT } from '@/lib/mirror-colors'
 
 export function DailyInsightCard() {
@@ -75,6 +76,10 @@ export function DailyInsightCard() {
             />
           </div>
           <LotusGlyph className="w-4 h-4 opacity-50" />
+          <ShareInsightButton
+            sutraOriginal={segment.original}
+            reflection={insight.reflection}
+          />
         </div>
       )}
     </section>
