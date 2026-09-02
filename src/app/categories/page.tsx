@@ -20,6 +20,9 @@ export default function CategoriesPage() {
       <header className="flex items-center justify-between gap-4">
         <h1 className="font-serif text-2xl">此刻，是什麼讓你停留？</h1>
         <nav className="flex items-center gap-4 text-sm text-zen-muted">
+          <Link href="/recite" className="hover:text-zen-accent">
+            誦經 →
+          </Link>
           <Link href="/mirror" className="hover:text-zen-accent">
             心鏡 →
           </Link>
