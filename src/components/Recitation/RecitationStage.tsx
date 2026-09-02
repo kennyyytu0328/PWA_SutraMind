@@ -17,6 +17,7 @@ const PHRASE_BASE =
 export function RecitationStage({ current, recent, status, onTap }: RecitationStageProps) {
   const reduced = useReducedMotion()
   const motionClass = reduced ? 'recite-fade' : 'recite-rise'
+  const stack = current ? [...recent, current] : recent
 
   return (
     <div
@@ -34,13 +35,21 @@ export function RecitationStage({ current, recent, status, onTap }: RecitationSt
       className="relative min-h-[40vh] flex items-center justify-center select-none cursor-pointer"
     >
       <div className="relative w-full h-24" aria-live="polite" aria-atomic="true">
-        {recent.map((phrase, i) => {
-          const depth = recent.length - i
+        {stack.map((phrase, i) => {
+          const isCurrent = i === stack.length - 1 && current !== null
+          if (isCurrent) {
+            return (
+              <p key={phrase.index} className={`${PHRASE_BASE} ${motionClass}`}>
+                {phrase.text}
+              </p>
+            )
+          }
+          const depth = stack.length - 1 - i
           const style = { '--depth': String(depth) } as CSSProperties
           return (
             <p
               key={phrase.index}
-              className={`${PHRASE_BASE} recite-linger ${reduced ? 'recite-fade' : ''}`}
+              className={`${PHRASE_BASE} recite-linger${reduced ? ' recite-fade' : ''}`}
               style={style}
               aria-hidden="true"
             >
@@ -48,11 +57,6 @@ export function RecitationStage({ current, recent, status, onTap }: RecitationSt
             </p>
           )
         })}
-        {current && (
-          <p key={current.index} className={`${PHRASE_BASE} ${motionClass}`}>
-            {current.text}
-          </p>
-        )}
       </div>
       {status === 'paused' && (
         <span className="absolute inset-0 flex items-center justify-center font-serif text-6xl text-zen-muted/40 pointer-events-none">

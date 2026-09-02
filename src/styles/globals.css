@@ -203,7 +203,11 @@ a, button, [role="button"] {
 /* ── Recitation rising mist ─────────────────────────────────────────
    Current phrase surfaces from below (blur → clear, lift 24px), then is
    promoted to a "recent" line that drifts up and dims by depth. Under
-   reduced motion the stage swaps to `recite-fade` (opacity only). */
+   reduced motion the stage swaps to `recite-fade` (opacity only) — but
+   the `--depth` vertical offset from `.recite-linger` is layout, not
+   motion, so it stays: the phrase `<p>`s are absolutely positioned with
+   no `top`, and that translateY is the only thing separating stacked
+   lines from the current one. */
 @keyframes recite-rise-in {
   0%   { opacity: 0; transform: translateY(24px); filter: blur(6px); }
   100% { opacity: 1; transform: translateY(0);    filter: blur(0); }
@@ -225,7 +229,6 @@ a, button, [role="button"] {
 }
 .recite-fade.recite-linger {
   animation: none;
-  transform: none;
   transition: opacity 600ms ease-out;
 }
 

@@ -68,8 +68,7 @@ describe('splitPhrases', () => {
 
   it('produces a stable phrase count for the real sutra', () => {
     const phrases = splitPhrases(SEGMENTS)
-    expect(phrases.length).toBeGreaterThan(40)
-    expect(phrases.length).toBeLessThan(70)
+    expect(phrases).toHaveLength(52)
     expect(phrases.every((p) => p.text.trim().length > 0)).toBe(true)
   })
 })

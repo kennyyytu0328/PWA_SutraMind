@@ -17,9 +17,11 @@ export default function RecitePage() {
 
   return (
     <div className="flex flex-col gap-10">
-      <Link href="/categories" className="self-start text-sm text-zen-muted hover:text-zen-accent">
-        ← 回到道場
-      </Link>
+      {r.status !== 'done' && (
+        <Link href="/categories" className="self-start text-sm text-zen-muted hover:text-zen-accent">
+          ← 回到道場
+        </Link>
+      )}
 
       {r.status === 'idle' && (
         <h2 className="text-center font-serif text-2xl tracking-[0.5em] text-zen-text">
@@ -27,9 +29,9 @@ export default function RecitePage() {
         </h2>
       )}
 
-      {r.status === 'done' ? (
-        <RecitationDone onRestart={r.start} />
-      ) : (
+      {r.status === 'done' && <RecitationDone onRestart={r.start} />}
+
+      {(r.status === 'playing' || r.status === 'paused') && (
         <RecitationStage
           current={r.current}
           recent={r.recent}

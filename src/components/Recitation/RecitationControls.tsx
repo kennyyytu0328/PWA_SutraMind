@@ -49,13 +49,15 @@ export function RecitationControls({
         </button>
       )}
 
-      <div className="w-full h-px bg-zen-surface" aria-hidden="true">
-        <div
-          data-testid="recite-progress"
-          className="h-px bg-zen-accent/70 transition-[width] duration-700 ease-out"
-          style={{ width: `${Math.round(progress * 100)}%` }}
-        />
-      </div>
+      {(status === 'playing' || status === 'paused') && (
+        <div className="w-full h-px bg-zen-surface" aria-hidden="true">
+          <div
+            data-testid="recite-progress"
+            className="h-px bg-zen-accent/70 transition-[width] duration-700 ease-out"
+            style={{ width: `${Math.round(progress * 100)}%` }}
+          />
+        </div>
+      )}
     </div>
   )
 }

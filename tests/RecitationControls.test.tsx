@@ -43,6 +43,13 @@ describe('RecitationControls', () => {
     )
     expect(screen.getByTestId('recite-progress').style.width).toBe('25%')
   })
+
+  it('hides the progress hairline when idle', () => {
+    render(
+      <RecitationControls speed="中" status="idle" progress={0} onSpeed={() => {}} onStart={() => {}} />
+    )
+    expect(screen.queryByTestId('recite-progress')).toBeNull()
+  })
 })
 
 describe('RecitationDone', () => {
