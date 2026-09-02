@@ -77,7 +77,7 @@ Spec: `docs/superpowers/specs/2026-05-17-daily-insight-design.md` · Plan: `docs
 ### 10. Sutra recitation (誦經) ✅ shipped 2026-09-02
 Spec: `docs/superpowers/specs/2026-09-02-sutra-recitation-design.md` · Plan: `docs/superpowers/plans/2026-09-02-sutra-recitation-plan.md`
 - `/recite`: title + ~50 punctuation-split phrases surface one at a time (rising mist), 緩/中/疾 cadence, tap-to-pause, auto-pause on tab hide, 一遍圓滿 closing with 再誦一遍.
-- Open follow-ups: chant audio/TTS, recitation count in Dexie (would feed /mirror), continuous loop mode.
+- Open follow-ups: chant audio/TTS, recitation count in Dexie (would feed /mirror), continuous loop mode, speed radiogroup arrow-key navigation (WAI-ARIA roving tabindex).
 
 ---
 

@@ -40,8 +40,9 @@ Reduced motion: the rise/dissolve animation is replaced by a plain opacity cross
 
 ```
 /recite page (thin, 'use client')
-  └─ <RecitationStage phrases current status onTap />   presentational
-  └─ <RecitationControls speed status onSpeed onStart onRestart />
+  └─ <RecitationStage current recent status onTap />      presentational
+  └─ <RecitationControls speed status progress onSpeed onStart />
+  └─ <RecitationDone onRestart />
   └─ useRecitation(phrases)                               state machine + timers
        └─ splitPhrases(segments) / phraseDurationMs(phrase, speed)
                                                           [src/lib/recitation.ts, pure]

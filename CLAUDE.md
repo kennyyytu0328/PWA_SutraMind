@@ -94,6 +94,7 @@ src/
 - `<BreathingLoader />` (5s soft-glow breath cycle) — rendered while `useChatSession` is in `sending` status.
 - `<InkDropText mode="live" | "replay" | "static" />` — `live` for fresh assistant turns (char-by-char with skip-on-tap), `replay` for past messages on `/history/detail` (whole-message bloom on first scroll into view).
 - `<SandArtExit visible={!exiting} onExited={...} />` — wrap a row to dissolve it before deletion. The actual `deleteSession` Dexie call must fire from `onExited`, not before.
+- `.recite-rise` / `.recite-linger` / `.recite-fade` (globals.css) — rising-mist phrase stack on `/recite`; `RecitationStage` swaps to `recite-fade` under reduced motion, but the `--depth` vertical offset is layout and stays.
 
 **Privacy hard rules:** API key stays in IndexedDB (currently plain — encryption on the TODO list). Never send anything to a server we control. No analytics. No telemetry. The `<a>` tag to Google AI Studio in `ApiKeyForm` is the only non-Gemini network call this app makes.
 
