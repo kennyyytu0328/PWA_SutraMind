@@ -33,7 +33,7 @@ export function RecitationStage({ current, recent, status, onTap }: RecitationSt
       }}
       className="relative min-h-[40vh] flex items-center justify-center select-none cursor-pointer"
     >
-      <div className="relative w-full h-24">
+      <div className="relative w-full h-24" aria-live="polite" aria-atomic="true">
         {recent.map((phrase, i) => {
           const depth = recent.length - i
           const style = { '--depth': String(depth) } as CSSProperties
@@ -49,7 +49,7 @@ export function RecitationStage({ current, recent, status, onTap }: RecitationSt
           )
         })}
         {current && (
-          <p key={current.index} className={`${PHRASE_BASE} ${motionClass}`} aria-live="polite">
+          <p key={current.index} className={`${PHRASE_BASE} ${motionClass}`}>
             {current.text}
           </p>
         )}

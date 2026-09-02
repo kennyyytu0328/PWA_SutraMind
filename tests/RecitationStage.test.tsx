@@ -22,6 +22,10 @@ describe('RecitationStage', () => {
     expect(oldest.className).toContain('recite-linger')
     expect(oldest.style.getPropertyValue('--depth')).toBe('2')
     expect(screen.getByText('行深般若波羅蜜多時，').style.getPropertyValue('--depth')).toBe('1')
+    // aria-live is on the stable container, not the keyed phrase element
+    const stableContainer = screen.getByTestId('recite-stage').querySelector('[aria-live="polite"]')
+    expect(stableContainer).not.toBe(current)
+    expect(stableContainer).toBeInTheDocument()
   })
 
   it('shows 止 overlay only when paused', () => {
