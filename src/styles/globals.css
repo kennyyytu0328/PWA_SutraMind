@@ -200,6 +200,35 @@ a, button, [role="button"] {
   }
 }
 
+/* ── Recitation rising mist ─────────────────────────────────────────
+   Current phrase surfaces from below (blur → clear, lift 24px), then is
+   promoted to a "recent" line that drifts up and dims by depth. Under
+   reduced motion the stage swaps to `recite-fade` (opacity only). */
+@keyframes recite-rise-in {
+  0%   { opacity: 0; transform: translateY(24px); filter: blur(6px); }
+  100% { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+.recite-rise {
+  animation: recite-rise-in 900ms cubic-bezier(0.05, 0.7, 0.1, 1) both;
+}
+.recite-linger {
+  opacity: calc(0.45 / var(--depth, 1));
+  transform: translateY(calc(var(--depth, 1) * -2.2em));
+  transition: opacity 900ms ease-out, transform 900ms ease-out;
+}
+@keyframes recite-fade-in {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+.recite-fade {
+  animation: recite-fade-in 600ms ease-out both;
+}
+.recite-fade.recite-linger {
+  animation: none;
+  transform: none;
+  transition: opacity 600ms ease-out;
+}
+
 @layer components {
   .gold-frame {
     @apply bg-zen-surface;
