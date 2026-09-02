@@ -47,18 +47,21 @@ src/
     history/detail/     # single session detail (uses ?id= query param, not [id]
                         # — Next 14 static export rejects [id] + 'use client' + empty params)
     mirror/             # /mirror — Recharts radar + trend, AppHeader nav entry
+    recite/             # /recite — phrase-by-phrase Heart Sutra recitation (no network, no persistence)
     layout.tsx          # mounts <LotusSymbol/> + <AppHeader/> globally above <main>
   components/           # presentational UI:
                         #   ApiKeyForm, CategoryGrid, ChatMessage, ChatInput,
                         #   RoundIndicator, SegmentReference, SessionListItem,
                         #   AppHeader, Lotus (LotusSymbol + LotusGlyph),
                         #   BreathingLoader, InkDropText, SandArtExit
+                        # Recitation/ : RecitationStage, RecitationControls, RecitationDone
                         # MindMirror/ : AttachmentIndex, RadarPanel,
                         #               TrendPanel, EmptyMirror
   hooks/
     useApiKey.ts        # apiKey CRUD wrapper
     useSessions.ts      # liveQuery list + by-id read-only
     useChatSession.ts   # chat state machine — owns round counting + retry logic
+    useRecitation.ts    # reducer + single timer; pauses on visibilitychange
     useReducedMotion.ts # matchMedia-based prefers-reduced-motion
   lib/
     db.ts               # Dexie schema + ALL persistence helpers
@@ -70,6 +73,7 @@ src/
     analytics-parser.ts          # tolerant JSON parser (markdown fence, brace balance, clamp)
     analytics-pipeline.ts        # fire-and-forget pipelineChatToAnalytics
     mirror-stats.ts              # attachmentIndex, last7/30Days, aggregateMetricsMax
+    recitation.ts       # pure: splitPhrases (by ，、；。！) + phraseDurationMs (緩/中/疾)
     date-utils.ts                # todayLocalISO
   data/sutra-db.json    # 9 Heart Sutra segments (canonical content; do not modify)
   types/chat.ts         # all shared types — import from here, never redefine
@@ -134,6 +138,7 @@ These are intentional and tracked in `TODO.md`:
 
 ## Recently shipped (don't re-implement)
 
+- ✅ 誦經 recitation page (`/recite`): auto-paced rising-mist phrases from `sutra-db.json`, 緩/中/疾 speeds, tap-to-pause, 一遍圓滿 closing. Pure CSS, no persistence, no Gemini (2026-09-02)
 - ✅ Phase 3-C: Daily Insight (`/mirror` card 「今日靜觀」 — tap-to-request Gemma reflection drawn from last-7-day metrics + client-picked sutra segment; Dexie v3 adds `dailyInsight` table; same-day guard preserves API quota). New invariant: `requestDailyInsight` is the *second* and only other non-chat Gemini call site alongside `pipelineChatToAnalytics` (2026-05-17)
 - ✅ Phase 3-A/B: analytics pipeline (Gemma extracts 5-dim metrics per session) + /mirror page (Recharts radar + trend); Dexie v2 (`analytics` + `profile` tables); AppHeader 心鏡/歷史 nav (2026-05-16)
 - ✅ All 5 dilemma categories enabled (Phase 2 #1, 2026-05-07)
