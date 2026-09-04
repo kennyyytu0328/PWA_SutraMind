@@ -87,6 +87,7 @@ src/
 
 **Decoration system:** A coherent gold-leaf visual language is established. When you need a "carved-panel" surface, reach for the existing pieces — don't invent new ones:
 - `<LotusGlyph className="w-N h-N" />` — import from `@/components/Lotus`. Renders the shared lotus by `<use href="#lotus-e">`. The single `<LotusSymbol />` is mounted once in `layout.tsx`; do NOT mount additional copies (would duplicate the `id="lotus-e"` and only the first would be visible).
+- `<ZenIcon name="knotHeart|mountain|meditator|leaf|spiral|lotus|yinYang|rings" className="w-N h-N" />` — import from `@/components/ZenIcon`. Solid monochrome silhouettes painted with `currentColor` (set the parent's text color, e.g. `text-zen-accent`). Every `CategoryMeta` carries an `icon` field; `/categories` nav links use `lotus` / `yinYang` / `rings`. Add new symbols here, not Lucide.
 - `.gold-frame` CSS class (in `globals.css`) — applies the double-line gold picture-frame (1px outer border + 4px gap + 1px inner shadow line) on any card. Used on `CategoryGrid` tiles and the open `SegmentReference` panel.
 - `<AppHeader />` is global (rendered in `layout.tsx`). The header `<h1>` is `心經數位道場` — page-level titles should use `<h2>` to keep the heading hierarchy valid.
 
@@ -139,6 +140,7 @@ These are intentional and tracked in `TODO.md`:
 
 ## Recently shipped (don't re-implement)
 
+- ✅ Zen glyph icons (`ZenIcon`): per-category filled symbols on the 5 tiles + small glyphs before 誦經/心鏡/歷史 links (2026-09-04)
 - ✅ 誦經 recitation page (`/recite`): auto-paced rising-mist phrases from `sutra-db.json`, 緩/中/疾 speeds, tap-to-pause, 一遍圓滿 closing. Pure CSS, no persistence, no Gemini (2026-09-02)
 - ✅ Phase 3-C: Daily Insight (`/mirror` card 「今日靜觀」 — tap-to-request Gemma reflection drawn from last-7-day metrics + client-picked sutra segment; Dexie v3 adds `dailyInsight` table; same-day guard preserves API quota). New invariant: `requestDailyInsight` is the *second* and only other non-chat Gemini call site alongside `pipelineChatToAnalytics` (2026-05-17)
 - ✅ Phase 3-A/B: analytics pipeline (Gemma extracts 5-dim metrics per session) + /mirror page (Recharts radar + trend); Dexie v2 (`analytics` + `profile` tables); AppHeader 心鏡/歷史 nav (2026-05-16)
