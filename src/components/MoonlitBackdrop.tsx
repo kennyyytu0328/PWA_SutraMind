@@ -59,7 +59,7 @@ export function MoonlitBackdrop() {
   const reduced = useReducedMotion()
   const [host, setHost] = useState<HTMLElement | null>(null)
   useEffect(() => setHost(document.body), [])
-  const haloClass = reduced ? 'text-zen-accent' : 'text-zen-accent moonlit-breathe'
+  const haloClass = reduced ? '' : 'moonlit-breathe'
 
   if (!host) return null
   return createPortal(
@@ -71,15 +71,17 @@ export function MoonlitBackdrop() {
         focusable="false"
       >
         <defs>
+          {/* stop-color: currentColor resolves from the <stop>'s own color,
+              not the referencing shape's, so each stop carries its class */}
           <radialGradient id="moonlit-halo" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="currentColor" stopOpacity="0.55" />
-            <stop offset="45%" stopColor="currentColor" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+            <stop offset="0%" className="text-zen-accent" stopColor="currentColor" stopOpacity="0.55" />
+            <stop offset="45%" className="text-zen-accent" stopColor="currentColor" stopOpacity="0.18" />
+            <stop offset="100%" className="text-zen-accent" stopColor="currentColor" stopOpacity="0" />
           </radialGradient>
           <radialGradient id="moonlit-disk" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="currentColor" stopOpacity="1" />
-            <stop offset="85%" stopColor="currentColor" stopOpacity="0.92" />
-            <stop offset="100%" stopColor="currentColor" stopOpacity="0.6" />
+            <stop offset="0%" className="text-zen-text" stopColor="currentColor" stopOpacity="1" />
+            <stop offset="85%" className="text-zen-text" stopColor="currentColor" stopOpacity="0.92" />
+            <stop offset="100%" className="text-zen-text" stopColor="currentColor" stopOpacity="0.6" />
           </radialGradient>
         </defs>
 
@@ -95,18 +97,41 @@ export function MoonlitBackdrop() {
           cy={400}
           r={180}
           fill="url(#moonlit-disk)"
-          className="text-zen-text"
         />
 
         {/* seated figure, cut from the page background */}
         <g data-part="figure" className="text-zen-bg" fill="currentColor">
-          {/* ushnisha + head */}
-          <path d="M480 296 C 487 306, 491 316, 489 324 L 471 324 C 469 316, 473 306, 480 296 Z" />
-          <ellipse cx={480} cy={356} rx={30} ry={36} />
+          {/* flame finial */}
+          <path d="M480 270 C 487 282, 493 294, 491 306 C 489 312, 486 316, 484 320 L 476 320 C 474 316, 471 312, 469 306 C 467 294, 473 282, 480 270 Z" />
+          {/* ushnisha dome */}
+          <path d="M454 324 C 456 302, 504 302, 506 324 Z" />
+          {/* cranium + face */}
+          <ellipse cx={480} cy={358} rx={34} ry={40} />
+          {/* hair curls along the hairline */}
+          <circle cx={511.9} cy={344.3} r={4.4} />
+          <circle cx={508.5} cy={336.2} r={4.4} />
+          <circle cx={503.6} cy={329.2} r={4.4} />
+          <circle cx={497.5} cy={323.7} r={4.4} />
+          <circle cx={490.5} cy={320.0} r={4.4} />
+          <circle cx={483.0} cy={318.2} r={4.4} />
+          <circle cx={475.3} cy={318.4} r={4.4} />
+          <circle cx={467.8} cy={320.7} r={4.4} />
+          <circle cx={461.0} cy={324.8} r={4.4} />
+          <circle cx={455.1} cy={330.7} r={4.4} />
+          <circle cx={450.6} cy={338.0} r={4.4} />
+          <circle cx={460} cy={321} r={3.8} />
+          <circle cx={469} cy={321} r={3.8} />
+          <circle cx={478} cy={321} r={3.8} />
+          <circle cx={487} cy={321} r={3.8} />
+          <circle cx={496} cy={321} r={3.8} />
+          <circle cx={504} cy={321} r={3.8} />
+          {/* elongated ears */}
+          <path d="M450 340 C 441 344, 438 368, 441 393 C 442 402, 450 403, 452 394 L 452 350 Z" />
+          <path d="M510 340 C 519 344, 522 368, 519 393 C 518 402, 510 403, 508 394 L 508 350 Z" />
           {/* neck */}
-          <rect x={468} y={386} width={24} height={14} />
-          {/* torso: sloping shoulders, elbows out, hands in lap */}
-          <path d="M462 398 L 498 398 C 540 406, 560 446, 566 496 C 572 516, 582 536, 598 546 C 608 556, 602 566, 590 566 L 370 566 C 358 566, 352 556, 362 546 C 378 536, 388 516, 394 496 C 400 446, 420 406, 462 398 Z" />
+          <path d="M465 390 L 495 390 C 496 400, 497 408, 501 414 L 459 414 C 463 408, 464 400, 465 390 Z" />
+          {/* robe: rounded sloping shoulders, elbows out, hands in lap */}
+          <path d="M459 412 C 467 408, 493 408, 501 412 C 528 416, 546 432, 552 458 C 556 480, 562 510, 584 542 C 594 554, 588 566, 574 566 L 386 566 C 372 566, 366 554, 376 542 C 398 510, 404 480, 408 458 C 414 432, 432 416, 459 412 Z" />
           {/* crossed legs */}
           <path d="M328 596 C 350 566, 420 556, 480 556 C 540 556, 610 566, 632 596 C 612 606, 348 606, 328 596 Z" />
         </g>
