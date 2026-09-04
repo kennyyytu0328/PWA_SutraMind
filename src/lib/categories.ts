@@ -1,8 +1,10 @@
 import type { CategoryId } from '@/types/chat'
+import type { ZenIconName } from '@/components/ZenIcon'
 
 export interface CategoryMeta {
   id: CategoryId
   label: string
+  icon: ZenIconName
   presets: string[]
   strategy: string
   likelySegments: string[]
@@ -14,6 +16,7 @@ export const CATEGORIES: CategoryMeta[] = [
   {
     id: 'emotion_relation',
     label: '情感與關係',
+    icon: 'knotHeart',
     presets: ['分手遺憾', '關係孤獨', '溝通耗竭'],
     strategy: '強化「心無罣礙」，引導使用者建立健康的心理邊界。',
     likelySegments: ['segment_4', 'segment_6'],
@@ -23,6 +26,7 @@ export const CATEGORIES: CategoryMeta[] = [
   {
     id: 'career_achievement',
     label: '職場與成就',
+    icon: 'mountain',
     presets: ['不甘心回報不足', '職涯迷茫', '同儕比較'],
     strategy: '解構「得失心」，強調「無所得」的過程價值。',
     likelySegments: ['segment_5'],
@@ -32,6 +36,7 @@ export const CATEGORIES: CategoryMeta[] = [
   {
     id: 'self_existence',
     label: '自我與存在',
+    icon: 'meditator',
     presets: ['年齡焦慮', '生活空虛', '意義喪失'],
     strategy: '回歸「不生不滅」，打破對自我形象的固化執著。',
     likelySegments: ['segment_3'],
@@ -41,6 +46,7 @@ export const CATEGORIES: CategoryMeta[] = [
   {
     id: 'health_pain',
     label: '健康與病痛',
+    icon: 'leaf',
     presets: ['長期疼痛', '死亡恐懼', '病後無法接受'],
     strategy: '實施「主客體分離」，觀察病痛而非成為病痛。',
     likelySegments: ['segment_1', 'segment_2'],
@@ -50,6 +56,7 @@ export const CATEGORIES: CategoryMeta[] = [
   {
     id: 'sudden_emotion',
     label: '突發性情緒',
+    icon: 'spiral',
     presets: ['資訊過載', '莫名的憤怒或悲傷'],
     strategy: '利用「六根清淨」進行情緒阻斷，回歸當下覺知。',
     likelySegments: ['segment_4'],

@@ -1,6 +1,6 @@
 'use client'
 import { CATEGORIES } from '@/lib/categories'
-import { LotusGlyph } from './Lotus'
+import { ZenIcon } from './ZenIcon'
 import type { CategoryId } from '@/types/chat'
 
 interface Props {
@@ -16,7 +16,10 @@ export function CategoryGrid({ onSelect }: Props) {
           onClick={() => onSelect(c.id)}
           className="gold-frame text-left p-6 hover:border-zen-accent transition flex items-start gap-3"
         >
-          <LotusGlyph className="w-5 h-5 mt-1 flex-shrink-0" />
+          <ZenIcon
+            name={c.icon}
+            className="w-6 h-6 mt-0.5 flex-shrink-0 text-zen-accent"
+          />
           <div className="flex-1">
             <h3 className="font-serif text-xl tracking-wider">{c.label}</h3>
             <p className="mt-2 text-sm text-zen-muted">
