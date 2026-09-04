@@ -3,6 +3,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { BreathingLoader } from '@/components/BreathingLoader'
+import { MoonlitBackdrop } from '@/components/MoonlitBackdrop'
 import { ChatMessage } from '@/components/ChatMessage'
 import { ChatInput } from '@/components/ChatInput'
 import { RoundIndicator } from '@/components/RoundIndicator'
@@ -66,6 +67,7 @@ function ChatBody({
 
   return (
     <div className="flex flex-col gap-6">
+      <MoonlitBackdrop />
       <header className="flex items-center justify-between">
         <Link href="/categories" className="text-sm text-zen-muted hover:text-zen-accent">
           ← 返回

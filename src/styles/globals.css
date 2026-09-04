@@ -232,6 +232,28 @@ a, button, [role="button"] {
   transition: opacity 600ms ease-out;
 }
 
+/* /chat moonlit backdrop — fixed scene behind the message column.
+   Same layer as .zen-ambient (z 0): above the body background, below
+   header/main (z 1). Portalled to <body> after the grain, so it paints
+   over the ambient glow. */
+.moonlit-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.24;
+}
+@keyframes moonlit-breathe {
+  0%, 100% { transform: scale(0.96); opacity: 0.8; }
+  50% { transform: scale(1.04); opacity: 1; }
+}
+.moonlit-breathe {
+  animation: moonlit-breathe 12s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .moonlit-breathe { animation: none; }
+}
+
 @layer components {
   .gold-frame {
     @apply bg-zen-surface;

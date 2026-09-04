@@ -95,6 +95,7 @@ src/
 - `<BreathingLoader />` (5s soft-glow breath cycle) — rendered while `useChatSession` is in `sending` status.
 - `<InkDropText mode="live" | "replay" | "static" />` — `live` for fresh assistant turns (char-by-char with skip-on-tap), `replay` for past messages on `/history/detail` (whole-message bloom on first scroll into view).
 - `<SandArtExit visible={!exiting} onExited={...} />` — wrap a row to dissolve it before deletion. The actual `deleteSession` Dexie call must fire from `onExited`, not before.
+- `<MoonlitBackdrop />` — /chat only. Inline-SVG moon + seated silhouette + grass, fixed at `z-index: 0` (same layer as `.zen-ambient`), **portalled to `<body>`** because `<main>`'s mount-fade transform would otherwise trap the fixed layer inside the column. Halo breathes via `.moonlit-breathe` unless reduced motion.
 - `.recite-rise` / `.recite-linger` / `.recite-fade` (globals.css) — rising-mist phrase stack on `/recite`; `RecitationStage` swaps to `recite-fade` under reduced motion, but the `--depth` vertical offset is layout and stays.
 
 **Privacy hard rules:** API key stays in IndexedDB (currently plain — encryption on the TODO list). Never send anything to a server we control. No analytics. No telemetry. The `<a>` tag to Google AI Studio in `ApiKeyForm` is the only non-Gemini network call this app makes.
@@ -140,6 +141,7 @@ These are intentional and tracked in `TODO.md`:
 
 ## Recently shipped (don't re-implement)
 
+- ✅ Moonlit backdrop on `/chat` (`MoonlitBackdrop`): fixed inline-SVG scene, gold halo, no image asset (2026-09-04)
 - ✅ Zen glyph icons (`ZenIcon`): per-category filled symbols on the 5 tiles + small glyphs before 誦經/心鏡/歷史 links (2026-09-04)
 - ✅ 誦經 recitation page (`/recite`): auto-paced rising-mist phrases from `sutra-db.json`, 緩/中/疾 speeds, tap-to-pause, 一遍圓滿 closing. Pure CSS, no persistence, no Gemini (2026-09-02)
 - ✅ Phase 3-C: Daily Insight (`/mirror` card 「今日靜觀」 — tap-to-request Gemma reflection drawn from last-7-day metrics + client-picked sutra segment; Dexie v3 adds `dailyInsight` table; same-day guard preserves API quota). New invariant: `requestDailyInsight` is the *second* and only other non-chat Gemini call site alongside `pipelineChatToAnalytics` (2026-05-17)
