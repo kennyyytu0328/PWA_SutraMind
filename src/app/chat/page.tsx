@@ -3,7 +3,7 @@ import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { BreathingLoader } from '@/components/BreathingLoader'
-import { MoonlitBackdrop } from '@/components/MoonlitBackdrop'
+import { BuddhaBackdrop } from '@/components/BuddhaBackdrop'
 import { ChatMessage } from '@/components/ChatMessage'
 import { ChatInput } from '@/components/ChatInput'
 import { RoundIndicator } from '@/components/RoundIndicator'
@@ -67,8 +67,8 @@ function ChatBody({
 
   return (
     <div className="flex flex-col gap-6">
-      <MoonlitBackdrop />
-      <header className="flex items-center justify-between">
+      <BuddhaBackdrop />
+      <header className="zen-legible flex items-center justify-between">
         <Link href="/categories" className="text-sm text-zen-muted hover:text-zen-accent">
           ← 返回
         </Link>
@@ -78,12 +78,12 @@ function ChatBody({
       {hasUnsavedTurns && (
         <div
           key={completedRounds}
-          className="ink-bloom ink-bloom-show flex flex-col items-center gap-1 -mt-2"
+          className="zen-legible ink-bloom ink-bloom-show mx-auto -mt-2 flex flex-col items-center gap-1 rounded-md bg-zen-bg/75 px-6 py-2.5 backdrop-blur-sm"
         >
-          <p className="font-serif text-xs text-zen-muted/70 tracking-[0.2em]">
+          <p className="font-serif text-xs text-zen-text/85 tracking-[0.2em]">
             尚未圓滿　今日心鏡將不映此境
           </p>
-          <p className="font-serif text-[11px] text-zen-muted/55 tracking-[0.15em]">
+          <p className="font-serif text-[11px] text-zen-muted tracking-[0.15em]">
             {completedRounds === 0
               ? '圓滿三巡，方得安住此境'
               : '圓滿三巡，或輕觸下方「提早放下並結束」以安住'}

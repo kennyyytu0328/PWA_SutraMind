@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from 'react'
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
-const SRC = `${BASE_PATH}/audio/meditativetiger-nomadic-spirit.mp3`
+// Heart Sutra chant. encodeURI keeps the CJK filename a valid URL on every
+// browser / service-worker path (sw.js matches on the .mp3 suffix).
+const SRC = encodeURI(`${BASE_PATH}/audio/般若波羅密多心經.mp3`)
 const STORAGE_KEY = 'sutramind:ambient-on'
 const TARGET_VOLUME = 0.35
 const FADE_MS = 1200
